@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_back"
+        android:icon="@drawable/ic_arrow_back"
+        android:title="Back" />
+    <item
+        android:id="@+id/nav_scan"
+        android:icon="@drawable/ic_camera"
+        android:title="Scan" />
+    <item
+        android:id="@+id/nav_results"
+        android:icon="@drawable/ic_list"
+        android:title="Results" />
+    <item
+        android:id="@+id/nav_map"
+        android:icon="@drawable/ic_map"
+        android:title="Map" />
+</menu>
