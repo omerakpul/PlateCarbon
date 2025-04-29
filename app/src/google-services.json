@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353321126110",
+    "project_id": "plrsau",
+    "storage_bucket": "plrsau.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353321126110:android:2cf51e5543e5bec8de9a4f",
+        "android_client_info": {
+          "package_name": "app.platecarbon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCte30htIRLK0vjJviDeJNyLqs9yxB3yXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
