@@ -1,0 +1,14 @@
+# Android Studio yerel dosyaları
+.idea/
+*.iml
+local.properties
+
+# Build çıktıları
+build/
+app/build/
+
+app/src/google-services.json
+
+# Geçici dosyalar
+*.log
+*.tmp
