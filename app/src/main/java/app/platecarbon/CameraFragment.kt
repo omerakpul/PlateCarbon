@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -102,6 +103,29 @@ class CameraFragment : Fragment() {
         binding.galleryBtn.setOnClickListener {
             checkGalleryPermission()
         }
+
+        binding.zoomSlider.max = 100 // 0-100 aralığı
+        binding.zoomSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    try {
+                        // Progress 0 (altta) → 0f (1x), 100 (üstte) → 1f (max, ~3x)
+                        val linearZoom = progress / 100f // 0f-1f aralığı
+                        imageCapture?.camera?.cameraControl?.setLinearZoom(linearZoom)
+                    } catch (e: Exception) {
+                        Log.e("CameraFragment", "Zoom hatası: ${e.message}")
+                    }
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // Kaydırma başladığında
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                // Kaydırma bittiğinde
+            }
+        })
 
         // Kamera izni kontrolü
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
