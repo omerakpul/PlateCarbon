@@ -3,166 +3,166 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/surface_color">
 
-    <!-- Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
-        android:elevation="2dp"
-        app:layout_constraintTop_toTopOf="parent">
+    <!-- Geri Butonu (Sadece İkon) -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        app:srcCompat="@drawable/ic_arrow_back"
+        app:tint="@color/primary_color"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-             />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Vehicle Details"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-    </androidx.appcompat.widget.Toolbar>
-
-    <ScrollView
-        android:layout_width="match_parent"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="64dp"
         android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
-            <!-- Plaka Bilgisi -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/plateCard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/tvPlateNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="24dp"
-                    android:paddingVertical="12dp"
-                    android:text="34 ABC 123"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Araç Bilgileri -->
+            <!-- Araç Bilgileri (Plaka ile) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/vehicleInfoCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/surface_color"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
-                app:layout_constraintTop_toBottomOf="@id/plateCard">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Plaka Başlığı -->
                     <TextView
+                        android:id="@+id/tvPlateNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="34 ABC 123"
+                        android:textColor="@color/primary_color"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvVehicleInfoTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
                         android:text="Vehicle Information"
                         android:textColor="@color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toBottomOf="@id/tvPlateNumber"
+                        app:layout_constraintStart_toStartOf="parent" />
 
                     <View
+                        android:id="@+id/divider1"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="@color/divider" />
+                        android:layout_marginTop="8dp"
+                        android:background="@color/divider"
+                        app:layout_constraintTop_toBottomOf="@id/tvVehicleInfoTitle" />
 
-                    <!-- Marka Model -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Marka -->
+                    <TextView
+                        android:id="@+id/tvBrandLabel"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:text="Brand:"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/divider1"
+                        app:layout_constraintBottom_toTopOf="@id/tvModelLabel" />
 
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Brand"
-                            android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tvBrand"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Toyota"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@id/tvBrandLabel"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvBrandLabel"
+                        app:layout_constraintBottom_toBottomOf="@id/tvBrandLabel" />
 
-                        <TextView
-                            android:id="@+id/tvBrand"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Toyota"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Model -->
+                    <TextView
+                        android:id="@+id/tvModelLabel"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
+                        android:text="Model:"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvBrandLabel"
+                        app:layout_constraintBottom_toTopOf="@id/tvYearLabel" />
 
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Model"
-                            android:textColor="@color/gray" />
+                    <TextView
+                        android:id="@+id/tvModel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Corolla"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@id/tvModelLabel"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvModelLabel"
+                        app:layout_constraintBottom_toBottomOf="@id/tvModelLabel" />
 
-                        <TextView
-                            android:id="@+id/tvModel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Corolla"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Yıl -->
+                    <TextView
+                        android:id="@+id/tvYearLabel"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
+                        android:text="Year:"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvModelLabel" />
 
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="Year"
-                            android:textColor="@color/gray" />
-
-                        <TextView
-                            android:id="@+id/tvYear"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="2022"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                </LinearLayout>
-
+                    <TextView
+                        android:id="@+id/tvYear"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="2022"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@id/tvYearLabel"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvYearLabel"
+                        app:layout_constraintBottom_toBottomOf="@id/tvYearLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Emisyon Bilgileri -->
@@ -170,53 +170,62 @@
                 android:id="@+id/emissionCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/surface_color"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
                 app:layout_constraintTop_toBottomOf="@id/vehicleInfoCard">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:padding="16dp">
 
                     <TextView
+                        android:id="@+id/tvEmissionTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Carbon Emission"
                         android:textColor="@color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
 
                     <View
+                        android:id="@+id/divider2"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="@color/divider" />
+                        android:layout_marginTop="8dp"
+                        android:background="@color/divider"
+                        app:layout_constraintTop_toBottomOf="@id/tvEmissionTitle" />
 
                     <TextView
                         android:id="@+id/tvEmissionValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:layout_marginTop="8dp"
                         android:text="120 g/km CO₂"
-                        android:textColor="@color/green"
-                        android:textSize="32sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/primary_color"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toBottomOf="@id/divider2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
                     <TextView
                         android:id="@+id/tvEmissionStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:text="Normal Range"
-                        android:textColor="@color/green" />
-
-                </LinearLayout>
-
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        app:layout_constraintTop_toBottomOf="@id/tvEmissionValue"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Riskli Araç İşaretleme -->
@@ -224,35 +233,45 @@
                 android:id="@+id/riskCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/surface_color"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
                 app:layout_constraintTop_toBottomOf="@id/emissionCard">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:padding="16dp">
 
                     <TextView
+                        android:id="@+id/tvRiskTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Risk Status"
                         android:textColor="@color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchRisk"
-                        android:layout_width="match_parent"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRisk"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Mark as High Risk Vehicle"
-                        android:textColor="@color/gray" />
-
-                </LinearLayout>
-
+                        android:padding="10dp"
+                        android:text="Mark as High Risk"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        app:backgroundTint="@color/primary_color"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_warning"
+                        app:iconTint="@color/white"
+                        app:layout_constraintTop_toBottomOf="@id/tvRiskTitle"
+                        app:layout_constraintStart_toStartOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- PDF Oluştur Butonu -->
@@ -260,16 +279,21 @@
                 android:id="@+id/btnGeneratePdf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="@color/green"
-                android:padding="12dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/primary_color"
+                android:padding="14dp"
                 android:text="Generate PDF Report"
                 android:textColor="@color/white"
+                android:textSize="16sp"
                 app:cornerRadius="8dp"
-                app:layout_constraintTop_toBottomOf="@id/riskCard" />
+                app:icon="@drawable/ic_pdf"
+                app:iconTint="@color/white"
+                app:elevation="4dp"
+                app:layout_constraintTop_toBottomOf="@id/riskCard"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </ScrollView>
-
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

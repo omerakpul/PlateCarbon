@@ -75,4 +75,5 @@ dependencies {
     implementation ("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("androidx.core:core:1.9.0") // NestedScrollView için
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 }
