@@ -1,15 +1,21 @@
 package app.platecarbon.network
 
+import app.platecarbon.network.ApiResponse
+import app.platecarbon.model.VehicleRequest
+import app.platecarbon.model.GenericResponse
 import okhttp3.MultipartBody
 import retrofit2.Call
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
+import retrofit2.http.*
 
 interface PlateApiService {
     @Multipart
-    @POST("upload") // Python tarafı hangi endpointi verirse onu yazacaksın
+    @POST("upload")
     fun uploadPlateImage(
         @Part image: MultipartBody.Part
     ): Call<ApiResponse>
+
+    @POST("add_vehicle")
+    fun addVehicle(
+        @Body vehicle: VehicleRequest
+    ): Call<GenericResponse>
 }

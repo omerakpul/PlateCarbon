@@ -1,0 +1,53 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/plakaEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Plaka" />
+
+        <EditText
+            android:id="@+id/markaEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Marka" />
+
+        <EditText
+            android:id="@+id/modelEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Model" />
+
+        <EditText
+            android:id="@+id/renkEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Renk" />
+
+        <EditText
+            android:id="@+id/yakitEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Yakıt Türü" />
+
+        <EditText
+            android:id="@+id/yilEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Araç Yılı"
+            android:inputType="number" />
+
+
+        <Button
+            android:id="@+id/kaydetBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kaydet"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+</ScrollView>

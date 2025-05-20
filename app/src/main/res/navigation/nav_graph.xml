@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/resultFragment">
+
 
     <fragment
         android:id="@+id/cameraFragment"
@@ -35,6 +38,11 @@
         android:name="com.example.plr.RegisterFragment"
         android:label="RegisterFragment" />
     <fragment
+        android:id="@+id/recentVehiclesFragment"
+        android:name="app.platecarbon.ui.RecentVehiclesFragment"
+        android:label="Son Eklenen Araçlar"
+        tools:layout="@layout/fragment_recent_vehicles" />
+    <fragment
         android:id="@+id/resultFragment"
         android:name="com.example.plr.ResultFragment"
         android:label="ResultFragment" >
@@ -45,4 +53,15 @@
             android:id="@+id/action_resultFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/vehicleAddFragment"
+        android:name="app.platecarbon.ui.VehicleAddFragment"
+        android:label="Araç Ekle"
+        tools:layout="@layout/fragment_vehicle_add" />
+
+    <fragment
+        android:id="@+id/vehicleDetailFragment"
+        android:name="app.platecarbon.ui.VehicleDetailFragment"
+        android:label="Araç Detay"
+        tools:layout="@layout/fragment_vehicle_detail" />
 </navigation>

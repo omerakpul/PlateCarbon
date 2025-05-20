@@ -16,4 +16,8 @@
         android:id="@+id/nav_map"
         android:icon="@drawable/ic_map"
         android:title="Map" />
+    <item
+        android:id="@+id/nav_recent_vehicles"
+        android:icon="@drawable/ic_list"
+        android:title="Son Araçlar" />
 </menu>

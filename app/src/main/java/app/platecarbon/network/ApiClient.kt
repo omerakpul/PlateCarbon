@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    private const val BASE_URL = "https://heartily-working-cheetah.ngrok-free.app/" // Şu an boş kalsın
+    private const val BASE_URL = "https://heartily-working-cheetah.ngrok-free.app/"
 
     private val retrofit by lazy {
         Retrofit.Builder()

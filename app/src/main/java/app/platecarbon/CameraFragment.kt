@@ -1,5 +1,6 @@
 package app.platecarbon
-
+import app.platecarbon.ui.VehicleDetailFragment
+import app.platecarbon.ui.VehicleAddFragment
 import android.Manifest
 import android.content.ContentValues
 import android.content.pm.PackageManager
@@ -34,6 +35,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import androidx.navigation.fragment.findNavController
 
 class CameraFragment : Fragment() {
 
@@ -224,29 +226,41 @@ class CameraFragment : Fragment() {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     Log.d("CameraFragment", "Ham ApiResponse: $apiResponse")
-                    apiResponse?.let {
-                        val plateNumber = it.plates?.firstOrNull()?.plate_number ?: "Plaka bulunamadı"
-                        binding.detectedPlateText.text = plateNumber
-                        Toast.makeText(
-                            requireContext(),
-                            "Plaka: $plateNumber",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        Log.d("CameraFragment", "Plaka alındı: $plateNumber")
-                    } ?: run {
-                        Log.d("CameraFragment", "API yanıtı boş")
+
+                    if (apiResponse != null) {
+                        if (apiResponse.found == true && apiResponse.arac != null) {
+                            val arac = apiResponse.arac
+                            val bundle = Bundle().apply {
+                                putString("plaka", arac.plaka ?: "")
+                                putString("marka", arac.marka ?: "")
+                                putString("model", arac.model ?: "")
+                                putString("renk", arac.renk ?: "")
+                                putString("yakit_turu", arac.yakit_turu ?: "")
+                                putInt("arac_yili", arac.arac_yili ?: 0)
+                            }
+
+                            findNavController().navigate(R.id.vehicleDetailFragment, bundle)
+
+
+                        } else if (apiResponse.found == false && apiResponse.plaka != null) {
+                            val bundle = Bundle().apply {
+                                putString("plaka", apiResponse.plaka)
+                            }
+                            findNavController().navigate(R.id.vehicleAddFragment, bundle)
+                        } else {
+                            Toast.makeText(requireContext(), "Geçersiz sunucu yanıtı!", Toast.LENGTH_SHORT).show()
+                        }
+
+                    } else {
                         Toast.makeText(requireContext(), "API yanıtı boş", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "Hata mesajı alınamadı"
                     Log.e("CameraFragment", "API hatası: HTTP ${response.code()}, Mesaj: $errorBody")
-                    Toast.makeText(
-                        requireContext(),
-                        "API hatası: $errorBody",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(requireContext(), "API hatası: $errorBody", Toast.LENGTH_LONG).show()
                 }
             }
+
 
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                 Log.e("CameraFragment", "Bağlantı hatası: ${t.message}")

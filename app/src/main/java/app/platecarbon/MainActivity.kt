@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import app.platecarbon.databinding.ActivityMainBinding
+import androidx.navigation.ui.NavigationUI
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,22 +36,29 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
 
         // Navbar'ı Navigation ile bağla
+        // Bu kısım onCreate içinde bir defa çağrılır (sadece 1 kere!)
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Navbar'da Back sekmesi için özel davranış
+// Geri tuşuna özel dinleyici
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_back -> {
-                    navController.popBackStack() // Geri git
+                    navController.popBackStack()
                     true
                 }
+
+                R.id.nav_recent_vehicles -> {
+                    navController.navigate(R.id.recentVehiclesFragment)
+                    true
+                }
+
                 else -> {
-                    // Diğer sekmeler için Navigation Component varsayılan davranışı
-                    binding.bottomNavigation.setupWithNavController(navController)
-                    false
+                    // Diğerleri zaten nav_graph ile eşleşiyor
+                    NavigationUI.onNavDestinationSelected(item, navController)
                 }
             }
         }
+
 
         // Bazı fragment'larda navbar'ı gizle
         navController.addOnDestinationChangedListener { _, destination, _ ->

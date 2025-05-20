@@ -1,0 +1,42 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/plakaText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Plaka:" />
+
+    <TextView
+        android:id="@+id/markaText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Marka:" />
+
+    <TextView
+        android:id="@+id/modelText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Model:" />
+
+    <TextView
+        android:id="@+id/renkText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Renk:" />
+
+    <TextView
+        android:id="@+id/yakitText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Yakıt Türü:" />
+
+    <TextView
+        android:id="@+id/yilText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Araç Yılı:" />
+</LinearLayout>
