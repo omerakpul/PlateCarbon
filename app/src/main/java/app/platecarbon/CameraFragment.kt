@@ -220,6 +220,7 @@ class CameraFragment : Fragment() {
                                 putString("renk", arac.renk ?: "")
                                 putString("yakit_turu", arac.yakit_turu ?: "")
                                 putInt("arac_yili", arac.arac_yili ?: 0)
+                                putFloat("karbon_emisyon", arac.karbon_emisyon ?: 0f)
                             }
 
                             findNavController().navigate(R.id.resultFragment, bundle)
