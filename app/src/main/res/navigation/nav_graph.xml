@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/resultFragment">
+    app:startDestination="@id/cameraFragment">
 
 
     <fragment
@@ -58,10 +58,4 @@
         android:name="app.platecarbon.ui.VehicleAddFragment"
         android:label="Araç Ekle"
         tools:layout="@layout/fragment_vehicle_add" />
-
-    <fragment
-        android:id="@+id/vehicleDetailFragment"
-        android:name="app.platecarbon.ui.VehicleDetailFragment"
-        android:label="Araç Detay"
-        tools:layout="@layout/fragment_vehicle_detail" />
 </navigation>

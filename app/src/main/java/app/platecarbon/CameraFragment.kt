@@ -1,5 +1,4 @@
 package app.platecarbon
-import app.platecarbon.ui.VehicleDetailFragment
 import app.platecarbon.ui.VehicleAddFragment
 import android.Manifest
 import android.content.ContentValues
@@ -14,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -44,6 +44,8 @@ class CameraFragment : Fragment() {
     private var imageCapture: ImageCapture? = null
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var outputDirectory: File
+    private var camera: Camera? = null
+    private var isFlashOn = false
 
     // Galeri seçimi için launcher
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -106,35 +108,14 @@ class CameraFragment : Fragment() {
             checkGalleryPermission()
         }
 
-        binding.zoomSlider.max = 100 // 0-100 aralığı
-        binding.zoomSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    try {
-                        // Progress 0 (altta) → 0f (1x), 100 (üstte) → 1f (max, ~3x)
-                        val linearZoom = progress / 100f // 0f-1f aralığı
-                        imageCapture?.camera?.cameraControl?.setLinearZoom(linearZoom)
-                    } catch (e: Exception) {
-                        Log.e("CameraFragment", "Zoom hatası: ${e.message}")
-                    }
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {
-                // Kaydırma başladığında
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                // Kaydırma bittiğinde
-            }
-        })
-
         // Kamera izni kontrolü
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             startCamera()
         } else {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
+
+        setupFlashButton()
     }
 
     private fun checkGalleryPermission() {
@@ -154,17 +135,19 @@ class CameraFragment : Fragment() {
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-            }
-            imageCapture = ImageCapture.Builder().build()
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
+                val cameraProvider = cameraProviderFuture.get()
+                val preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                }
+                imageCapture = ImageCapture.Builder().build()
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                Log.d("CameraFragment", "Kamera bağlandı, camera nesnesi atandı")
             } catch (e: Exception) {
                 Log.e("CameraFragment", "Kamera başlatılamadı: ${e.message}")
+                Toast.makeText(requireContext(), "Kamera başlatılamadı: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
@@ -239,7 +222,7 @@ class CameraFragment : Fragment() {
                                 putInt("arac_yili", arac.arac_yili ?: 0)
                             }
 
-                            findNavController().navigate(R.id.vehicleDetailFragment, bundle)
+                            findNavController().navigate(R.id.resultFragment, bundle)
 
 
                         } else if (apiResponse.found == false && apiResponse.plaka != null) {
@@ -273,12 +256,34 @@ class CameraFragment : Fragment() {
         })
     }
 
+    private fun toggleFlash() {
+        camera?.let { cam ->
+            if (cam.cameraInfo.hasFlashUnit()) {
+                isFlashOn = !isFlashOn
+                cam.cameraControl.enableTorch(isFlashOn)
+                binding.flashButton.setIconResource(
+                    if (isFlashOn) R.drawable.ic_flash_on else R.drawable.ic_flash_off
+                )
+            } else {
+                Toast.makeText(requireContext(), "Flaş desteklenmiyor", Toast.LENGTH_SHORT).show()
+            }
+        } ?: Toast.makeText(requireContext(), "Kamera hazır değil", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setupFlashButton() {
+        binding.flashButton.setOnClickListener {
+            toggleFlash()
+        }
+    }
+
     private fun getOutputDirectory(): File {
         val mediaDir = requireContext().externalMediaDirs.firstOrNull()?.let {
             File(it, "PlateCarbon").apply { mkdirs() }
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir else requireContext().filesDir
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

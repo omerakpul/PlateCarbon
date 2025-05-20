@@ -50,7 +50,6 @@ class VehicleAddFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // 🔹 Tam burada bu satırı yazıyorsun:
             val vehicleRequest = VehicleRequest(
                 plaka = plaka,
                 marka = marka,
@@ -60,7 +59,6 @@ class VehicleAddFragment : Fragment() {
                 arac_yili = aracYili
             )
 
-            // 🔸 API isteğini yap
             ApiClient.plateService.addVehicle(vehicleRequest).enqueue(object : Callback<GenericResponse> {
                 override fun onResponse(call: Call<GenericResponse>, response: Response<GenericResponse>) {
                     if (response.isSuccessful) {

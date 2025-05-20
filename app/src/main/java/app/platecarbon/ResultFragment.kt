@@ -33,14 +33,12 @@ class ResultFragment : Fragment() {
 
         activity?.findViewById<View>(R.id.bottomNavigation)?.visibility = View.GONE
 
-        arguments?.let { args ->
-            binding.tvPlateNumber.text = args.getString("plate_number") ?: "Bilinmiyor"
-            binding.tvBrand.text = args.getString("brand") ?: "Bilinmiyor"
-            binding.tvModel.text = args.getString("model") ?: "Bilinmiyor"
-            binding.tvYear.text = args.getString("year") ?: "Bilinmiyor"
-            binding.tvEmissionValue.text = args.getString("emission") ?: "Bilinmiyor"
-            binding.tvEmissionStatus.text = args.getString("emission_status") ?: "Bilinmiyor"
-        }
+        val args = arguments
+        binding.tvPlateNumber.text = args?.getString("plaka")
+        binding.tvBrand.text = args?.getString("marka")
+        binding.tvModel.text = args?.getString("model")
+        binding.tvYear.text = args?.getInt("arac_yili")?.toString() ?: "-"
+
 
         binding.btnBack.setOnClickListener {
             findNavController().navigate(R.id.action_resultFragment_to_cameraFragment)

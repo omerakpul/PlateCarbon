@@ -94,7 +94,7 @@
                     android:layout_marginBottom="12dp"
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/zoomCard">
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/captureBtn"
@@ -118,28 +118,6 @@
                         app:iconTint="@color/white"
                         app:backgroundTint="@color/primary_color" />
                 </LinearLayout>
-
-                <!-- Sağ Alt: Zoom -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/zoomCard"
-                    android:layout_width="48dp"
-                    android:layout_height="160dp"
-                    android:layout_margin="12dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="@color/surface_color"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <SeekBar
-                        android:id="@+id/zoomSlider"
-                        android:layout_width="140dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:rotation="270"
-                        android:progressTint="@color/primary_color"
-                        android:thumbTint="@color/primary_color" />
-                </com.google.android.material.card.MaterialCardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
