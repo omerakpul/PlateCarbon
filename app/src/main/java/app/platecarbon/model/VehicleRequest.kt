@@ -6,5 +6,7 @@ data class VehicleRequest(
     val model: String,
     val renk: String,
     val yakit_turu: String,
+    val arac_tipi: String,
+    val karbon_emisyon: Float?,
     val arac_yili: Int
 )

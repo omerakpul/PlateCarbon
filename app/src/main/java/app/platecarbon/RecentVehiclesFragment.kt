@@ -26,13 +26,6 @@ class RecentVehiclesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Bu kısımda veri API'den çekilecek
-        // Şimdilik dummy veri göster:
-        val dummyList = listOf(
-            VehicleRequest("34ABC123", "Toyota", "Corolla", "Beyaz", "Benzin", 2021),
-            VehicleRequest("06DEF456", "Renault", "Clio", "Gri", "Dizel", 2020),
-            VehicleRequest("35XYZ789", "Honda", "Civic", "Siyah", "Benzin", 2022)
-        )
 
         // RecyclerView kurulumunu burada yapacağız (istersen yardımcı olayım)
         Toast.makeText(requireContext(), "Son 5 araç gelecektir", Toast.LENGTH_SHORT).show()

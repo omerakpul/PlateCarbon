@@ -38,6 +38,7 @@ class ResultFragment : Fragment() {
         binding.tvBrand.text = args?.getString("marka")
         binding.tvModel.text = args?.getString("model")
         binding.tvYear.text = args?.getInt("arac_yili")?.toString() ?: "-"
+        binding.tvEmissionValue.text = args?.getFloat("karbon_emisyon").toString()
 
 
         binding.btnBack.setOnClickListener {

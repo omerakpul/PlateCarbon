@@ -41,6 +41,7 @@ class VehicleAddFragment : Fragment() {
             val model = binding.modelEditText.text.toString().trim()
             val renk = binding.renkEditText.text.toString().trim()
             val yakit = binding.yakitEditText.text.toString().trim()
+            val aractipi = binding.aracTipiEditText.text.toString().trim()
             val yilStr = binding.yilEditText.text.toString().trim()
 
             val aracYili = yilStr.toIntOrNull()
@@ -57,6 +58,8 @@ class VehicleAddFragment : Fragment() {
                 model = model,
                 renk = renk,
                 yakit_turu = yakit,
+                arac_tipi = aractipi,
+                karbon_emisyon = null,
                 arac_yili = aracYili
             )
 
