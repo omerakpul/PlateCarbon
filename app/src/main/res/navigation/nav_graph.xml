@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_cameraFragment_to_resultFragment"
             app:destination="@id/resultFragment" />
+        <action
+            android:id="@+id/action_cameraFragment_to_vehicleAddFragment"
+            app:destination="@id/vehicleAddFragment" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
@@ -57,5 +60,9 @@
         android:id="@+id/vehicleAddFragment"
         android:name="app.platecarbon.ui.VehicleAddFragment"
         android:label="Araç Ekle"
-        tools:layout="@layout/fragment_vehicle_add" />
+        tools:layout="@layout/fragment_vehicle_add" >
+        <action
+            android:id="@+id/action_vehicleAddFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
 </navigation>

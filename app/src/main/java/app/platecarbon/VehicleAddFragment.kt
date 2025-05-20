@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import app.platecarbon.R
 import app.platecarbon.databinding.FragmentVehicleAddBinding
 import app.platecarbon.model.VehicleRequest
 import app.platecarbon.model.GenericResponse
@@ -58,6 +59,10 @@ class VehicleAddFragment : Fragment() {
                 yakit_turu = yakit,
                 arac_yili = aracYili
             )
+
+            binding.btnBack.setOnClickListener {
+                findNavController().navigate(R.id.action_vehicleAddFragment_to_cameraFragment)
+            }
 
             ApiClient.plateService.addVehicle(vehicleRequest).enqueue(object : Callback<GenericResponse> {
                 override fun onResponse(call: Call<GenericResponse>, response: Response<GenericResponse>) {
