@@ -1,5 +1,4 @@
 package app.platecarbon
-import app.platecarbon.ui.VehicleAddFragment
 import android.Manifest
 import android.content.ContentValues
 import android.content.pm.PackageManager
@@ -10,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -76,7 +74,6 @@ class CameraFragment : Fragment() {
             Toast.makeText(requireContext(), "Kamera izni reddedildi", Toast.LENGTH_SHORT).show()
         }
     }
-
     private val galleryPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
             galleryLauncher.launch("image/*")
@@ -106,19 +103,16 @@ class CameraFragment : Fragment() {
         binding.captureBtn.setOnClickListener {
             takePhoto()
         }
-
         // Galeriden seç butonu
         binding.galleryBtn.setOnClickListener {
             checkGalleryPermission()
         }
-
         // Kamera izni kontrolü
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             startCamera()
         } else {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
-
         setupFlashButton()
     }
 
@@ -128,7 +122,6 @@ class CameraFragment : Fragment() {
         } else {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
-
         if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
             galleryLauncher.launch("image/*")
         } else {
@@ -241,10 +234,7 @@ class CameraFragment : Fragment() {
                                 putInt("arac_yili", arac.arac_yili ?: 0)
                                 putFloat("karbon_emisyon", arac.karbon_emisyon ?: 0f)
                             }
-
                             findNavController().navigate(R.id.resultFragment, bundle)
-
-
                         } else if (apiResponse.found == false && apiResponse.plaka != null) {
                             val bundle = Bundle().apply {
                                 putString("plaka", apiResponse.plaka)
@@ -254,7 +244,6 @@ class CameraFragment : Fragment() {
                         } else {
                             Toast.makeText(requireContext(), "Geçersiz sunucu yanıtı!", Toast.LENGTH_SHORT).show()
                         }
-
                     } else {
                         Toast.makeText(requireContext(), "API yanıtı boş", Toast.LENGTH_SHORT).show()
                     }
@@ -264,8 +253,6 @@ class CameraFragment : Fragment() {
                     Toast.makeText(requireContext(), "API hatası: $errorBody", Toast.LENGTH_LONG).show()
                 }
             }
-
-
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                 Log.e("CameraFragment", "Bağlantı hatası: ${t.message}")
                 Toast.makeText(
@@ -276,7 +263,6 @@ class CameraFragment : Fragment() {
             }
         })
     }
-
     private fun toggleFlash() {
         camera?.let { cam ->
             if (cam.cameraInfo.hasFlashUnit()) {
@@ -290,20 +276,17 @@ class CameraFragment : Fragment() {
             }
         } ?: Toast.makeText(requireContext(), "Kamera hazır değil", Toast.LENGTH_SHORT).show()
     }
-
     private fun setupFlashButton() {
         binding.flashButton.setOnClickListener {
             toggleFlash()
         }
     }
-
     private fun getOutputDirectory(): File {
         val mediaDir = requireContext().externalMediaDirs.firstOrNull()?.let {
             File(it, "PlateCarbon").apply { mkdirs() }
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir else requireContext().filesDir
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         cameraExecutor.shutdown()

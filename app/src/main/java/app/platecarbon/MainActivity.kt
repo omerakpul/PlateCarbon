@@ -41,9 +41,6 @@ class MainActivity : AppCompatActivity() {
         // Bazı fragment'larda navbar'ı gizle
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.loginFragment, R.id.registerFragment, R.id.vehicleAddFragment -> {
-                    binding.bottomNavigation.visibility = View.GONE
-                }
                 else -> binding.bottomNavigation.visibility = View.VISIBLE
             }
         }

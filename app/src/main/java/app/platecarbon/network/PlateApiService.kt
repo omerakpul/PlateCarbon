@@ -3,7 +3,6 @@ package app.platecarbon.network
 import app.platecarbon.model.VehicleRequest
 import app.platecarbon.model.GenericResponse
 import app.platecarbon.model.SingleVehicleResponse
-import app.platecarbon.model.VehicleLog
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.*

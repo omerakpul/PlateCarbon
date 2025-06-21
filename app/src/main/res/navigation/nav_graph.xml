@@ -12,46 +12,28 @@
         android:name="app.platecarbon.CameraFragment"
         android:label="CameraFragment" >
         <action
-            android:id="@+id/action_cameraFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <action
             android:id="@+id/action_cameraFragment_to_resultFragment"
             app:destination="@id/resultFragment" />
         <action
             android:id="@+id/action_cameraFragment_to_vehicleAddFragment"
             app:destination="@id/vehicleAddFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="app.platecarbon.HomeFragment"
-        android:label="HomeFragment" >
         <action
-            android:id="@+id/action_homeFragment_to_resultFragment"
-            app:destination="@id/resultFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_cameraFragment"
-            app:destination="@id/cameraFragment" />
+            android:id="@+id/action_cameraFragment_to_recentVehiclesFragment"
+            app:destination="@id/recentVehiclesFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="app.platecarbon.LoginFragment"
-        android:label="LoginFragment" />
-    <fragment
-        android:id="@+id/registerFragment"
-        android:name="com.example.plr.RegisterFragment"
-        android:label="RegisterFragment" />
     <fragment
         android:id="@+id/recentVehiclesFragment"
         android:name="app.platecarbon.ui.RecentVehiclesFragment"
         android:label="Son Eklenen Araçlar"
-        tools:layout="@layout/fragment_recent_vehicles" />
+        tools:layout="@layout/fragment_recent_vehicles" >
+        <action
+            android:id="@+id/action_recentVehiclesFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
     <fragment
         android:id="@+id/resultFragment"
         android:name="com.example.plr.ResultFragment"
         android:label="ResultFragment" >
-        <action
-            android:id="@+id/action_resultFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
         <action
             android:id="@+id/action_resultFragment_to_cameraFragment"
             app:destination="@id/cameraFragment" />

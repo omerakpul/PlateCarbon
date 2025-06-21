@@ -1,13 +1,11 @@
 package app.platecarbon.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import app.platecarbon.databinding.ItemVehicleLogBinding
 import app.platecarbon.VehicleHistoryItem
-import app.platecarbon.VehicleHistoryManager
 import app.platecarbon.model.VehicleLog
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -58,8 +56,6 @@ class VehicleHistoryAdapter(
                 binding.tvParkedTime.text = ""
                 binding.tvMovingTime.text = ""
             }
-
-            // Tıklama olayını kaldır
             binding.root.setOnClickListener(null)
         }
 

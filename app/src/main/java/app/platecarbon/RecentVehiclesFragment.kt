@@ -55,7 +55,6 @@ class RecentVehiclesFragment : Fragment() {
         vehicleHistoryAdapter = VehicleHistoryAdapter(emptyList()) { historyItem ->
             // Tıklama olayı yok
         }
-
         binding.rvVehicles.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = vehicleHistoryAdapter
@@ -67,7 +66,6 @@ class RecentVehiclesFragment : Fragment() {
         binding.btnExportCsv?.setOnClickListener {
             exportToCSV()
         }
-
         // PDF Rapor butonu
         binding.btnExportPdf?.setOnClickListener {
             exportToPDF()
