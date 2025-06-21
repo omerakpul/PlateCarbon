@@ -56,9 +56,6 @@ class ResultFragment : Fragment() {
             Toast.makeText(context, if (isHighRisk) "High Risk" else "Normal", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnGeneratePdf.setOnClickListener {
-            Toast.makeText(context, "PDF oluşturuluyor...", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onDestroyView() {

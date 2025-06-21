@@ -14,6 +14,7 @@ data class VehicleInfo(
 data class ApiResponse(
     val found: Boolean,
     val plaka: String?,
+    val marka: String?,
     val arac: VehicleInfo?
 )
 

@@ -38,9 +38,6 @@ class LoginFragment : Fragment() {
         // to be filled
         }
     }
-
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

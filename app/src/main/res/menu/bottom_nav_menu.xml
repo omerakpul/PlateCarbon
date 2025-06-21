@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_scan"
+        android:id="@+id/cameraFragment"
         android:icon="@drawable/ic_camera"
-        android:title="Scan" />
+        android:title="Kamera" />
     <item
-        android:id="@+id/nav_results"
-        android:icon="@drawable/ic_list"
-        android:title="Results" />
-    <item
-        android:id="@+id/nav_map"
+        android:id="@+id/recentVehiclesFragment"
         android:icon="@drawable/ic_map"
-        android:title="Map" />
-    <item
-        android:id="@+id/nav_recent_vehicles"
-        android:icon="@drawable/ic_list"
         android:title="Son Araçlar" />
 </menu>

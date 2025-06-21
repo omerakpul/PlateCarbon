@@ -57,8 +57,8 @@ object VehicleHistoryManager {
         }
     }
 
-    // Geçmişi kaydet
-    private fun saveHistory(history: List<VehicleHistoryItem>) {
+    // Geçmişi kaydet (public yapıldı)
+    fun saveHistory(history: List<VehicleHistoryItem>) {
         val json = gson.toJson(history)
         sharedPreferences.edit().putString(KEY_HISTORY, json).apply()
     }
@@ -76,7 +76,7 @@ object VehicleHistoryManager {
 
         return when {
             diffInMinutes < 1 -> "Az önce"
-            diffInMinutes < 60 -> "${diffInMinutes} dk önce"
+            diffInMinutes < 60 -> "$diffInMinutes dakika önce"
             diffInMinutes < 1440 -> "${diffInMinutes / 60} saat önce"
             else -> "${diffInMinutes / 1440} gün önce"
         }

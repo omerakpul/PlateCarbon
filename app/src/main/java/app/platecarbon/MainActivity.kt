@@ -35,31 +35,15 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Navbar'ı Navigation ile bağla
-        // Bu kısım onCreate içinde bir defa çağrılır (sadece 1 kere!)
+        // Bottom Navigation'ı Navigation ile bağla
         binding.bottomNavigation.setupWithNavController(navController)
-
-// Geri tuşuna özel dinleyici
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_recent_vehicles -> {
-                    navController.navigate(R.id.recentVehiclesFragment)
-                    true
-                }
-
-                else -> {
-                    // Diğerleri zaten nav_graph ile eşleşiyor
-                    NavigationUI.onNavDestinationSelected(item, navController)
-                }
-            }
-        }
-
 
         // Bazı fragment'larda navbar'ı gizle
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                // Örnek: Ayarlar veya diğer gizli ekranlar
-                // R.id.settingsFragment -> binding.bottomNavigation.visibility = View.GONE
+                R.id.loginFragment, R.id.registerFragment, R.id.vehicleAddFragment -> {
+                    binding.bottomNavigation.visibility = View.GONE
+                }
                 else -> binding.bottomNavigation.visibility = View.VISIBLE
             }
         }

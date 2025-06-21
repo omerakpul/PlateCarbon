@@ -102,8 +102,6 @@ class CameraFragment : Fragment() {
         cameraExecutor = Executors.newSingleThreadExecutor()
         outputDirectory = getOutputDirectory()
 
-
-
         // Kamera butonu
         binding.captureBtn.setOnClickListener {
             takePhoto()
@@ -250,6 +248,7 @@ class CameraFragment : Fragment() {
                         } else if (apiResponse.found == false && apiResponse.plaka != null) {
                             val bundle = Bundle().apply {
                                 putString("plaka", apiResponse.plaka)
+                                putString("marka", apiResponse.marka)
                             }
                             findNavController().navigate(R.id.vehicleAddFragment, bundle)
                         } else {

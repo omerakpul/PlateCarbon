@@ -2,64 +2,100 @@ package app.platecarbon.adapter
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import app.platecarbon.databinding.ItemVehicleBinding
+import app.platecarbon.databinding.ItemVehicleLogBinding
 import app.platecarbon.VehicleHistoryItem
 import app.platecarbon.VehicleHistoryManager
+import app.platecarbon.model.VehicleLog
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class VehicleHistoryAdapter(
     private var historyItems: List<VehicleHistoryItem>,
     private val onVehicleClick: (VehicleHistoryItem) -> Unit
 ) : RecyclerView.Adapter<VehicleHistoryAdapter.VehicleHistoryViewHolder>() {
 
-    inner class VehicleHistoryViewHolder(private val binding: ItemVehicleBinding) : RecyclerView.ViewHolder(binding.root) {
+    private val dbFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    private val displayFormat = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
+
+    // Log bilgilerini tutmak için map
+    private val vehicleLogs = mutableMapOf<String, VehicleLog>()
+
+    // Sadece log bilgisi olan araçları göster
+    private val filteredHistoryItems: List<VehicleHistoryItem>
+        get() = historyItems.filter { vehicleLogs.containsKey(it.vehicle.plaka) }
+
+    inner class VehicleHistoryViewHolder(private val binding: ItemVehicleLogBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(historyItem: VehicleHistoryItem) {
             val vehicle = historyItem.vehicle
+            val plaka = vehicle.plaka
 
-            binding.tvPlateNumber.text = vehicle.plaka
-            binding.tvBrandModel.text = "${vehicle.marka} ${vehicle.model}"
-            binding.tvColor.text = vehicle.renk
-            binding.tvFuelType.text = vehicle.yakit_turu
-            binding.tvYear.text = vehicle.arac_yili.toString()
+            // Plaka
+            binding.tvPlateNumber.text = plaka
 
-            // Tarama zamanını göster
-            binding.tvScanTime.text = VehicleHistoryManager.formatScanTime(historyItem.scannedAt)
+            // Log bilgileri varsa göster
+            val vehicleLog = vehicleLogs[plaka]
 
-            // Debug: Karbon emisyon değerini logla
-            Log.d("VehicleHistoryAdapter", "Plaka: ${vehicle.plaka}, Karbon Emisyon: ${vehicle.karbon_emisyon}")
+            if (vehicleLog != null) {
+                // API'den gelen log bilgilerini göster
+                binding.tvCarbonEmission.text = "%.2f g/km".format(vehicleLog.carbonEmission ?: 0f)
+                binding.tvCarbonEmission.visibility = View.VISIBLE
 
-            // Karbon emisyonu varsa göster
-            vehicle.karbon_emisyon?.let { emission ->
-                Log.d("VehicleHistoryAdapter", "Karbon emisyon gösteriliyor: $emission")
-                binding.tvEmission.text = "${emission} g/km"
-                binding.tvEmission.visibility = android.view.View.VISIBLE
-            } ?: run {
-                Log.d("VehicleHistoryAdapter", "Karbon emisyon null, gizleniyor")
-                binding.tvEmission.visibility = android.view.View.GONE
+                binding.tvEntryTime.text = "Giriş: ${formatDate(vehicleLog.entryTime)}"
+                binding.tvExitTime.text = if(vehicleLog.exitTime != null) "Çıkış: ${formatDate(vehicleLog.exitTime)}" else "Çıkış yapılmadı"
+                binding.tvTotalTime.text = "${vehicleLog.totalTimeSeconds ?: 0}s\nToplam"
+                binding.tvParkedTime.text = "${vehicleLog.totalParkedSeconds ?: 0}s\nPark"
+                binding.tvMovingTime.text = "${vehicleLog.actualMovingSeconds ?: 0}s\nHareket"
+            } else {
+                // Log bilgisi yoksa hiçbir şey gösterme (bu durumda bu item gösterilmeyecek)
+                binding.tvCarbonEmission.visibility = View.GONE
+                binding.tvEntryTime.text = ""
+                binding.tvExitTime.text = ""
+                binding.tvTotalTime.text = ""
+                binding.tvParkedTime.text = ""
+                binding.tvMovingTime.text = ""
             }
 
-            // Tıklama olayı
-            binding.root.setOnClickListener {
-                onVehicleClick(historyItem)
+            // Tıklama olayını kaldır
+            binding.root.setOnClickListener(null)
+        }
+
+        private fun formatDate(dateString: String?): String {
+            if (dateString.isNullOrEmpty()) return "Bilinmiyor"
+            return try {
+                val date = dbFormat.parse(dateString)
+                if (date != null) displayFormat.format(date) else "Hatalı Tarih"
+            } catch (e: Exception) {
+                dateString
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VehicleHistoryViewHolder {
-        val binding = ItemVehicleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemVehicleLogBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return VehicleHistoryViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: VehicleHistoryViewHolder, position: Int) {
-        holder.bind(historyItems[position])
+        val filteredItems = filteredHistoryItems
+        if (position < filteredItems.size) {
+            holder.bind(filteredItems[position])
+        }
     }
 
-    override fun getItemCount(): Int = historyItems.size
+    override fun getItemCount(): Int = filteredHistoryItems.size
 
     fun updateVehicles(newHistoryItems: List<VehicleHistoryItem>) {
         historyItems = newHistoryItems
         notifyDataSetChanged()
+    }
+
+    // Log bilgilerini güncellemek için yeni metod
+    fun updateVehicleWithLog(plaka: String, vehicleLog: VehicleLog) {
+        vehicleLogs[plaka] = vehicleLog
+        notifyDataSetChanged() // Tüm listeyi yenile çünkü filtreleme değişebilir
     }
 }

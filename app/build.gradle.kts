@@ -77,4 +77,6 @@ dependencies {
     implementation ("androidx.core:core:1.9.0") // NestedScrollView için
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation ("org.postgresql:postgresql:42.3.5")
+    implementation("com.itextpdf:itext7-core:7.2.3")
+    implementation("org.apache.commons:commons-csv:1.9.0")
 }

@@ -13,6 +13,8 @@ object ApiClient {
             .build()
     }
 
+    fun getClient(): Retrofit = retrofit
+
     val plateService: PlateApiService by lazy {
         retrofit.create(PlateApiService::class.java)
     }
