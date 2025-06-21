@@ -66,10 +66,6 @@ class RecentVehiclesFragment : Fragment() {
         binding.btnExportCsv?.setOnClickListener {
             exportToCSV()
         }
-        // PDF Rapor butonu
-        binding.btnExportPdf?.setOnClickListener {
-            exportToPDF()
-        }
     }
 
     private fun loadVehicleHistory() {
@@ -150,7 +146,10 @@ class RecentVehiclesFragment : Fragment() {
         try {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val fileName = "vehicle_report_$timestamp.csv"
-            val file = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
+
+            // Downloads klasörüne kaydet
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloadsDir, fileName)
 
             FileWriter(file).use { writer ->
                 // CSV başlıkları
@@ -163,56 +162,42 @@ class RecentVehiclesFragment : Fragment() {
                     val vehicleLog = vehicleLogs[plaka]
 
                     if (vehicleLog != null) {
-                        writer.append("${vehicleLog.plate},")
-                        writer.append("${vehicleLog.entryTime},")
-                        writer.append("${vehicleLog.exitTime ?: "Çıkış yapılmadı"},")
+                        // Plaka bilgisini historyItem'dan al, vehicleLog'dan değil
+                        writer.append("\"${plaka}\",")
+                        writer.append("\"${vehicleLog.entryTime ?: ""}\",")
+                        writer.append("\"${vehicleLog.exitTime ?: "Çıkış yapılmadı"}\",")
                         writer.append("${vehicleLog.totalTimeSeconds ?: 0},")
                         writer.append("${vehicleLog.totalParkedSeconds ?: 0},")
                         writer.append("${vehicleLog.actualMovingSeconds ?: 0},")
                         writer.append("${vehicleLog.carbonEmission ?: 0},")
-                        writer.append("${historyItem.vehicle.marka},")
-                        writer.append("${historyItem.vehicle.model},")
-                        writer.append("${historyItem.vehicle.renk},")
-                        writer.append("${historyItem.vehicle.yakit_turu},")
-                        writer.append("${historyItem.vehicle.arac_yili}\n")
+                        writer.append("\"${historyItem.vehicle.marka ?: ""}\",")
+                        writer.append("\"${historyItem.vehicle.model ?: ""}\",")
+                        writer.append("\"${historyItem.vehicle.renk ?: ""}\",")
+                        writer.append("\"${historyItem.vehicle.yakit_turu ?: ""}\",")
+                        writer.append("${historyItem.vehicle.arac_yili ?: 0}\n")
                     }
                 }
             }
 
-            shareFile(file, "text/csv", "CSV Raporu")
-            Toast.makeText(requireContext(), "CSV raporu oluşturuldu", Toast.LENGTH_SHORT).show()
+            // Dosyayı medya tarayıcısına bildir
+            notifyMediaScanner(file)
+
+            Toast.makeText(requireContext(), "CSV raporu Downloads klasörüne kaydedildi: $fileName", Toast.LENGTH_LONG).show()
 
         } catch (e: Exception) {
             Log.e("RecentVehiclesFragment", "CSV oluşturma hatası: ${e.message}")
             Toast.makeText(requireContext(), "CSV oluşturma hatası: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
-    // PDF Raporu oluştur
-    private fun exportToPDF() {
-        try {
-            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val fileName = "vehicle_report_$timestamp.pdf"
-            val file = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
-
-            // PDF oluşturma kodu buraya gelecek (iText7 kullanarak)
-            createPDFReport(file)
-
-            shareFile(file, "application/pdf", "PDF Raporu")
-            Toast.makeText(requireContext(), "PDF raporu oluşturuldu", Toast.LENGTH_SHORT).show()
-
-        } catch (e: Exception) {
-            Log.e("RecentVehiclesFragment", "PDF oluşturma hatası: ${e.message}")
-            Toast.makeText(requireContext(), "PDF oluşturma hatası: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
+    // Dosyayı medya tarayıcısına bildir (Downloads klasöründe görünmesi için)
+    private fun notifyMediaScanner(file: File) {
+        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        val uri = Uri.fromFile(file)
+        intent.data = uri
+        requireContext().sendBroadcast(intent)
     }
 
-    private fun createPDFReport(file: File) {
-        // PDF oluşturma implementasyonu
-        // iText7 kullanarak profesyonel PDF raporu oluştur
-    }
-
-    // Dosyayı paylaş
+    // Dosyayı paylaş (opsiyonel olarak tutuyoruz)
     private fun shareFile(file: File, mimeType: String, title: String) {
         val uri = FileProvider.getUriForFile(
             requireContext(),
