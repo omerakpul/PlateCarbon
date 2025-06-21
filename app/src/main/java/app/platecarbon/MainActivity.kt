@@ -42,11 +42,6 @@ class MainActivity : AppCompatActivity() {
 // Geri tuşuna özel dinleyici
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_back -> {
-                    navController.popBackStack()
-                    true
-                }
-
                 R.id.nav_recent_vehicles -> {
                     navController.navigate(R.id.recentVehiclesFragment)
                     true

@@ -8,7 +8,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="1000dp"
         android:orientation="vertical"
         android:background="@color/surface_color">
 
@@ -50,8 +49,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cameraContainer"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="500dp"
             android:layout_margin="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp"

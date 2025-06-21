@@ -1,5 +1,7 @@
 package app.platecarbon.model
 
+import java.util.Date
+
 data class VehicleRequest(
     val plaka: String,
     val marka: String,

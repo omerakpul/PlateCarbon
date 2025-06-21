@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import app.platecarbon.R
+import app.platecarbon.VehicleHistoryManager
 import app.platecarbon.databinding.FragmentVehicleAddBinding
 import app.platecarbon.model.VehicleRequest
 import app.platecarbon.model.GenericResponse
@@ -31,6 +32,9 @@ class VehicleAddFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // VehicleHistoryManager'ı başlat
+        VehicleHistoryManager.initialize(requireContext())
 
         val gelenPlaka = arguments?.getString("plaka")
         binding.plakaEditText.setText(gelenPlaka)
@@ -72,6 +76,9 @@ class VehicleAddFragment : Fragment() {
                     if (response.isSuccessful) {
                         val message = response.body()?.message ?: "Başarıyla kaydedildi"
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+
+                        // Araç başarıyla eklendiğinde VehicleHistoryManager'a da ekle
+                        VehicleHistoryManager.addVehicleToHistory(vehicleRequest)
 
                         // İsteğe bağlı: geri dön
                         findNavController().navigateUp()

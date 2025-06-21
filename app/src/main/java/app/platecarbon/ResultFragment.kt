@@ -1,6 +1,7 @@
 package com.example.plr
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -33,7 +34,11 @@ class ResultFragment : Fragment() {
 
         activity?.findViewById<View>(R.id.bottomNavigation)?.visibility = View.GONE
 
+
+
         val args = arguments
+        Log.d("ResultFragment", "Karbon Emisyon Değeri: ${args?.getFloat("karbon_emisyon")}")
+
         binding.tvPlateNumber.text = args?.getString("plaka")
         binding.tvBrand.text = args?.getString("marka")
         binding.tvModel.text = args?.getString("model")

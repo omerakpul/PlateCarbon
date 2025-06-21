@@ -36,6 +36,7 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.navigation.fragment.findNavController
+import app.platecarbon.model.VehicleRequest
 
 class CameraFragment : Fragment() {
 
@@ -95,8 +96,13 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // VehicleHistoryManager'ı başlat
+        VehicleHistoryManager.initialize(requireContext())
+
         cameraExecutor = Executors.newSingleThreadExecutor()
         outputDirectory = getOutputDirectory()
+
+
 
         // Kamera butonu
         binding.captureBtn.setOnClickListener {
@@ -213,6 +219,21 @@ class CameraFragment : Fragment() {
                     if (apiResponse != null) {
                         if (apiResponse.found == true && apiResponse.arac != null) {
                             val arac = apiResponse.arac
+
+                            // Araç bulunduğunda VehicleHistoryManager'a ekle
+                            val vehicleRequest = VehicleRequest(
+                                plaka = arac.plaka ?: "",
+                                marka = arac.marka ?: "",
+                                model = arac.model ?: "",
+                                renk = arac.renk ?: "",
+                                yakit_turu = arac.yakit_turu ?: "",
+                                arac_tipi = arac.arac_tipi ?: "",
+                                karbon_emisyon = arac.karbon_emisyon,
+                                arac_yili = arac.arac_yili ?: 0
+                            )
+                            VehicleHistoryManager.addVehicleToHistory(vehicleRequest)
+
+
                             val bundle = Bundle().apply {
                                 putString("plaka", arac.plaka ?: "")
                                 putString("marka", arac.marka ?: "")
@@ -283,8 +304,6 @@ class CameraFragment : Fragment() {
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir else requireContext().filesDir
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()

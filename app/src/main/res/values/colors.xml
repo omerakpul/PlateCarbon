@@ -7,4 +7,5 @@
     <color name="green">#2E7D32</color> <!-- Orman yeşili, primary_color ile aynı -->
     <color name="gray">#757575</color> <!-- Sade gri -->
     <color name="divider">#B0BEC5</color> <!-- Ayırıcı için açık gri -->
+    <color name="text_secondary">#757575</color> <!-- İkincil metin rengi -->
 </resources>
