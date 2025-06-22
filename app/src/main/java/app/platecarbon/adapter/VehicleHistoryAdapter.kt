@@ -1,29 +1,28 @@
 package app.platecarbon.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import app.platecarbon.databinding.ItemVehicleLogBinding
 import app.platecarbon.VehicleHistoryItem
+import app.platecarbon.databinding.ItemVehicleLogBinding
 import app.platecarbon.model.VehicleLog
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 class VehicleHistoryAdapter(
     private var historyItems: List<VehicleHistoryItem>,
     private val onVehicleClick: (VehicleHistoryItem) -> Unit
 ) : RecyclerView.Adapter<VehicleHistoryAdapter.VehicleHistoryViewHolder>() {
 
-    private val dbFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    private val displayFormat = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
+    // API'den gelen tarih formatı (ör: 2025-06-22T13:21:23.759914)
+    private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+    // Göstermek istediğimiz tarih formatı
+    private val displayDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
 
     // Log bilgilerini tutmak için map
     private val vehicleLogs = mutableMapOf<String, VehicleLog>()
-
-    // Sadece log bilgisi olan araçları göster
-    private val filteredHistoryItems: List<VehicleHistoryItem>
-        get() = historyItems.filter { vehicleLogs.containsKey(it.vehicle.plaka) }
 
     inner class VehicleHistoryViewHolder(private val binding: ItemVehicleLogBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -39,19 +38,26 @@ class VehicleHistoryAdapter(
 
             if (vehicleLog != null) {
                 // API'den gelen log bilgilerini göster
-                binding.tvCarbonEmission.text = "%.2f g/km".format(vehicleLog.carbonEmission ?: 0f)
-                binding.tvCarbonEmission.visibility = View.VISIBLE
+                if (vehicleLog.carbonEmission != null) {
+                    binding.tvCarbonEmission.text = "%.2f g/km".format(vehicleLog.carbonEmission)
+                    binding.tvCarbonEmission.visibility = View.VISIBLE
+                } else {
+                    binding.tvCarbonEmission.visibility = View.GONE
+                }
 
                 binding.tvEntryTime.text = "Giriş: ${formatDate(vehicleLog.entryTime)}"
-                binding.tvExitTime.text = if(vehicleLog.exitTime != null) "Çıkış: ${formatDate(vehicleLog.exitTime)}" else "Çıkış yapılmadı"
-                binding.tvTotalTime.text = "${vehicleLog.totalTimeSeconds ?: 0}s\nToplam"
-                binding.tvParkedTime.text = "${vehicleLog.totalParkedSeconds ?: 0}s\nPark"
-                binding.tvMovingTime.text = "${vehicleLog.actualMovingSeconds ?: 0}s\nHareket"
+                binding.tvExitTime.text = if (vehicleLog.exitTime != null) "Çıkış: ${formatDate(vehicleLog.exitTime)}" else "Çıkış yapılmadı"
+
+                // Süreleri dinamik olarak ve etiketleriyle birlikte göster
+                binding.tvTotalTime.text = "${formatDuration(vehicleLog.totalTimeSeconds)}\nToplam"
+                binding.tvParkedTime.text = "${formatDuration(vehicleLog.totalParkedSeconds)}\nPark"
+                binding.tvMovingTime.text = "${formatDuration(vehicleLog.actualMovingSeconds)}\nHareket"
+
             } else {
-                // Log bilgisi yoksa hiçbir şey gösterme (bu durumda bu item gösterilmeyecek)
+                // Log bilgisi yoksa temel araç bilgilerini göster
                 binding.tvCarbonEmission.visibility = View.GONE
-                binding.tvEntryTime.text = ""
-                binding.tvExitTime.text = ""
+                binding.tvEntryTime.text = "Marka: ${vehicle.marka}"
+                binding.tvExitTime.text = "Model: ${vehicle.model}"
                 binding.tvTotalTime.text = ""
                 binding.tvParkedTime.text = ""
                 binding.tvMovingTime.text = ""
@@ -62,10 +68,27 @@ class VehicleHistoryAdapter(
         private fun formatDate(dateString: String?): String {
             if (dateString.isNullOrEmpty()) return "Bilinmiyor"
             return try {
-                val date = dbFormat.parse(dateString)
-                if (date != null) displayFormat.format(date) else "Hatalı Tarih"
+                // Milisaniyeyi ve 'T'yi dikkate alacak şekilde formatı ayarla
+                val adjustedDateString = dateString.substringBefore(".")
+                val date = apiDateFormat.parse(adjustedDateString)
+                if (date != null) displayDateFormat.format(date) else "Hatalı Tarih"
             } catch (e: Exception) {
-                dateString
+                Log.e("VehicleHistoryAdapter", "Tarih parse hatası: $dateString", e)
+                dateString // Hata olursa orijinal string'i döndür
+            }
+        }
+
+        private fun formatDuration(totalSeconds: Int?): String {
+            if (totalSeconds == null || totalSeconds < 0) return "0s"
+
+            val hours = totalSeconds / 3600
+            val minutes = (totalSeconds % 3600) / 60
+            val seconds = totalSeconds % 60
+
+            return when {
+                hours > 0 -> "${hours}sa ${minutes}dk"
+                minutes > 0 -> "${minutes}dk ${seconds}s"
+                else -> "${seconds}s"
             }
         }
     }
@@ -76,22 +99,26 @@ class VehicleHistoryAdapter(
     }
 
     override fun onBindViewHolder(holder: VehicleHistoryViewHolder, position: Int) {
-        val filteredItems = filteredHistoryItems
-        if (position < filteredItems.size) {
-            holder.bind(filteredItems[position])
-        }
+        holder.bind(historyItems[position])
     }
 
-    override fun getItemCount(): Int = filteredHistoryItems.size
+    override fun getItemCount(): Int = historyItems.size
 
     fun updateVehicles(newHistoryItems: List<VehicleHistoryItem>) {
-        historyItems = newHistoryItems
+        this.historyItems = newHistoryItems
         notifyDataSetChanged()
     }
 
-    // Log bilgilerini güncellemek için yeni metod
+    // Tek bir aracın log bilgisini güncellemek için metod
     fun updateVehicleWithLog(plaka: String, vehicleLog: VehicleLog) {
         vehicleLogs[plaka] = vehicleLog
-        notifyDataSetChanged() // Tüm listeyi yenile çünkü filtreleme değişebilir
+        notifyDataSetChanged()
+    }
+
+    // Tüm araç log bilgilerini güncellemek için yeni metod
+    fun updateAllVehicleLogs(allLogs: Map<String, VehicleLog>) {
+        vehicleLogs.clear()
+        vehicleLogs.putAll(allLogs)
+        notifyDataSetChanged()
     }
 }

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import app.platecarbon.R
+import app.platecarbon.VehicleHistoryManager
 import app.platecarbon.databinding.FragmentVehicleAddBinding
 import app.platecarbon.model.VehicleRequest
 import app.platecarbon.model.GenericResponse
@@ -80,8 +81,26 @@ class VehicleAddFragment : Fragment() {
                         val message = response.body()?.message ?: "Başarıyla kaydedildi"
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
-                        // İsteğe bağlı: geri dön
-                        findNavController().navigateUp()
+                        // VehicleHistoryManager'ı başlat
+                        VehicleHistoryManager.initialize(requireContext())
+
+                        // API'den dönen araç bilgilerini al (karbon emisyon dahil)
+                        val savedVehicle = response.body()?.arac ?: vehicleRequest
+
+                        // Araç bilgilerini geçmişe ekle
+                        VehicleHistoryManager.addVehicleToHistory(savedVehicle)
+
+                        // Result ekranına yönlendir (API'den dönen verilerle)
+                        val bundle = Bundle().apply {
+                            putString("plaka", savedVehicle.plaka)
+                            putString("marka", savedVehicle.marka)
+                            putString("model", savedVehicle.model)
+                            putString("renk", savedVehicle.renk)
+                            putString("yakit_turu", savedVehicle.yakit_turu)
+                            putInt("arac_yili", savedVehicle.arac_yili)
+                            putFloat("karbon_emisyon", savedVehicle.karbon_emisyon ?: 0f)
+                        }
+                        findNavController().navigate(R.id.action_vehicleAddFragment_to_resultFragment, bundle)
                     } else {
                         Toast.makeText(requireContext(), "Sunucu hatası: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }

@@ -23,7 +23,7 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="34 DUA 34" />
+            tools:text="" />
 
         <TextView
             android:id="@+id/tvCarbonEmission"
@@ -37,7 +37,7 @@
             app:drawableTint="@color/primary_color"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="17.28 g/km" />
+            tools:text=" g/km" />
 
         <TextView
             android:id="@+id/tvEntryTime"
@@ -46,7 +46,7 @@
             android:layout_marginTop="12dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvPlateNumber"
-            tools:text="Giriş: 21 Haz, 19:56" />
+            tools:text="Giriş: " />
 
         <TextView
             android:id="@+id/tvExitTime"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvEntryTime"
-            tools:text="Çıkış: 21 Haz, 19:57" />
+            tools:text="Çıkış: " />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -67,17 +67,17 @@
             <TextView
                 android:id="@+id/tvTotalTime"
                 style="@style/TimeInfoStyle"
-                tools:text="37s\nToplam" />
+                tools:text="\nToplam" />
 
             <TextView
                 android:id="@+id/tvParkedTime"
                 style="@style/TimeInfoStyle"
-                tools:text="19s\nPark" />
+                tools:text="\nPark" />
 
             <TextView
                 android:id="@+id/tvMovingTime"
                 style="@style/TimeInfoStyle"
-                tools:text="18s\nHareket" />
+                tools:text="\nHareket" />
 
         </LinearLayout>
 

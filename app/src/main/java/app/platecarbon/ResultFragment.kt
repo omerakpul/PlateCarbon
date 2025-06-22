@@ -14,7 +14,6 @@ import app.platecarbon.databinding.FragmentResultBinding
 class ResultFragment : Fragment() {
     private var _binding: FragmentResultBinding? = null
     private val binding get() = _binding!!
-    private var isHighRisk = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +33,6 @@ class ResultFragment : Fragment() {
 
         activity?.findViewById<View>(R.id.bottomNavigation)?.visibility = View.GONE
 
-
-
         val args = arguments
         Log.d("ResultFragment", "Karbon Emisyon Değeri: ${args?.getFloat("karbon_emisyon")}")
 
@@ -45,17 +42,9 @@ class ResultFragment : Fragment() {
         binding.tvYear.text = args?.getInt("arac_yili")?.toString() ?: "-"
         binding.tvEmissionValue.text = args?.getFloat("karbon_emisyon").toString()
 
-
         binding.btnBack.setOnClickListener {
             findNavController().navigate(R.id.action_resultFragment_to_cameraFragment)
         }
-
-        binding.btnRisk.setOnClickListener {
-            isHighRisk = !isHighRisk
-            binding.btnRisk.text = if (isHighRisk) "Remove Risk" else "Mark as High Risk"
-            Toast.makeText(context, if (isHighRisk) "High Risk" else "Normal", Toast.LENGTH_SHORT).show()
-        }
-
     }
 
     override fun onDestroyView() {

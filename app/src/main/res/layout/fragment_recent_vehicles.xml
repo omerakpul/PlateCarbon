@@ -1,54 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface_color">
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:text="Son Taranan Araçlar"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/llReportButtons"
+        app:layout_constraintBottom_toBottomOf="@id/llReportButtons"
+        app:layout_constraintHorizontal_bias="0.0"/>
 
-    <!-- Rapor Butonları -->
     <LinearLayout
-        android:id="@+id/reportButtonsContainer"
+        android:id="@+id/llReportButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- CSV Butonu -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnExportCsv"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
+            android:minWidth="0dp"
+            android:paddingHorizontal="12dp"
             android:text="CSV"
-            android:textSize="12sp"
-            app:backgroundTint="@color/primary_color"
-            app:cornerRadius="8dp"
+            android:textColor="@color/primary_color"
             app:icon="@drawable/ic_csv"
-            app:iconTint="@color/white" />
+            app:iconPadding="4dp"
+            app:iconTint="@color/primary_color"
+            app:strokeColor="@color/primary_color" />
 
+        <!-- PDF Butonu -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnExportPdf"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:paddingHorizontal="12dp"
             android:text="PDF"
-            android:textSize="12sp"
-            app:backgroundTint="@color/primary_color"
-            app:cornerRadius="8dp"
+            android:textColor="@color/primary_color"
             app:icon="@drawable/ic_pdf"
-            app:iconTint="@color/white" />
+            app:iconPadding="4dp"
+            app:iconTint="@color/primary_color"
+            app:strokeColor="@color/primary_color" />
 
     </LinearLayout>
 

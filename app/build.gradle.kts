@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.media3.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,5 +79,6 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation ("org.postgresql:postgresql:42.3.5")
     implementation("com.itextpdf:itext7-core:7.2.3")
+    implementation("com.github.anastr:speedviewlib:1.6.0")
     implementation("org.apache.commons:commons-csv:1.9.0")
 }

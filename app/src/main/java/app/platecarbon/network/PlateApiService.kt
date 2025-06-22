@@ -1,5 +1,6 @@
 package app.platecarbon.network
 
+import app.platecarbon.model.AllVehicleLogsResponse
 import app.platecarbon.model.VehicleRequest
 import app.platecarbon.model.GenericResponse
 import app.platecarbon.model.SingleVehicleResponse
@@ -21,4 +22,7 @@ interface PlateApiService {
 
     @GET("vehicle_logs")
     fun getVehicleLog(@Query("plaka") plate: String): Call<SingleVehicleResponse>
+
+    @GET("vehicle_logs")
+    fun getAllVehicleLogs(): Call<AllVehicleLogsResponse>
 }

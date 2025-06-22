@@ -3,7 +3,7 @@ package app.platecarbon.model
 import com.google.gson.annotations.SerializedName
 
 data class VehicleLog(
-    @SerializedName("plate") val plate: String,
+    @SerializedName("plaka") val plate: String?, // String? yaptık çünkü null gelebiliyor
     @SerializedName("entry_time") val entryTime: String,
     @SerializedName("exit_time") val exitTime: String?,
     @SerializedName("total_time_seconds") val totalTimeSeconds: Int?,
