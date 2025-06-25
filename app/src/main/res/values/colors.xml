@@ -8,4 +8,10 @@
     <color name="gray">#757575</color> <!-- Sade gri -->
     <color name="divider">#B0BEC5</color> <!-- Ayırıcı için açık gri -->
     <color name="text_secondary">#757575</color> <!-- İkincil metin rengi -->
+
+    <!-- Emisyon durumu renkleri -->
+    <color name="emission_low">#4CAF50</color> <!-- Yeşil -->
+    <color name="emission_normal">#4CAF50</color> <!-- Yeşil -->
+    <color name="emission_high">#FF9800</color> <!-- Turuncu/Sarı -->
+    <color name="emission_very_high">#F44336</color> <!-- Kırmızı -->
 </resources>

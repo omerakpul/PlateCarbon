@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.content.ContextCompat
 import app.platecarbon.VehicleHistoryItem
 import app.platecarbon.databinding.ItemVehicleLogBinding
 import app.platecarbon.model.VehicleLog
+import app.platecarbon.R
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,6 +43,10 @@ class VehicleHistoryAdapter(
                 if (vehicleLog.carbonEmission != null) {
                     binding.tvCarbonEmission.text = "%.2f g/km".format(vehicleLog.carbonEmission)
                     binding.tvCarbonEmission.visibility = View.VISIBLE
+
+                    // CO2 değerine göre renk belirle
+                    val emissionColor = getEmissionColor(vehicleLog.carbonEmission)
+                    binding.tvCarbonEmission.setTextColor(emissionColor)
                 } else {
                     binding.tvCarbonEmission.visibility = View.GONE
                 }
@@ -63,6 +69,15 @@ class VehicleHistoryAdapter(
                 binding.tvMovingTime.text = ""
             }
             binding.root.setOnClickListener(null)
+        }
+
+        // CO2 değerine göre renk belirleme fonksiyonu
+        private fun getEmissionColor(emission: Float): Int {
+            return when {
+                emission < 60 -> ContextCompat.getColor(itemView.context, R.color.emission_low) // Yeşil
+                emission <= 80 -> ContextCompat.getColor(itemView.context, R.color.emission_high) // Sarı
+                else -> ContextCompat.getColor(itemView.context, R.color.emission_very_high) // Kırmızı
+            }
         }
 
         private fun formatDate(dateString: String?): String {

@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import app.platecarbon.R
 import app.platecarbon.databinding.FragmentResultBinding
+import android.graphics.Color
 
 class ResultFragment : Fragment() {
     private var _binding: FragmentResultBinding? = null
@@ -34,13 +35,25 @@ class ResultFragment : Fragment() {
         activity?.findViewById<View>(R.id.bottomNavigation)?.visibility = View.GONE
 
         val args = arguments
-        Log.d("ResultFragment", "Karbon Emisyon Değeri: ${args?.getFloat("karbon_emisyon")}")
+        val karbonEmisyon = args?.getFloat("karbon_emisyon") ?: 0f
+        Log.d("ResultFragment", "Karbon Emisyon Değeri: $karbonEmisyon")
 
         binding.tvPlateNumber.text = args?.getString("plaka")
         binding.tvBrand.text = args?.getString("marka")
         binding.tvModel.text = args?.getString("model")
         binding.tvYear.text = args?.getInt("arac_yili")?.toString() ?: "-"
-        binding.tvEmissionValue.text = args?.getFloat("karbon_emisyon").toString()
+        binding.tvEmissionValue.text = "$karbonEmisyon g/km CO₂"
+
+        // Karbon emisyon değerine göre durum ve renk belirle
+        val (emissionStatus, statusColor) = when {
+            karbonEmisyon <= 100 -> "Düşük Emisyon" to Color.parseColor("#4CAF50") // Yeşil
+            karbonEmisyon <= 150 -> "Normal Aralık" to Color.parseColor("#4CAF50") // Yeşil
+            karbonEmisyon <= 200 -> "Yüksek Emisyon" to Color.parseColor("#FF9800") // Turuncu/Sarı
+            else -> "Çok Yüksek Emisyon" to Color.parseColor("#F44336") // Kırmızı
+        }
+
+        binding.tvEmissionStatus.text = emissionStatus
+        binding.tvEmissionStatus.setTextColor(statusColor)
 
         binding.btnBack.setOnClickListener {
             findNavController().navigate(R.id.action_resultFragment_to_cameraFragment)
