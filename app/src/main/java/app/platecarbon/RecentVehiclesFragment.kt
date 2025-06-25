@@ -32,7 +32,6 @@ import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
 import com.itextpdf.kernel.colors.ColorConstants
 import com.itextpdf.io.font.PdfEncodings
-import com.itextpdf.io.font.constants.StandardFonts
 import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.font.PdfFont
 import retrofit2.Call
@@ -76,8 +75,11 @@ class RecentVehiclesFragment : Fragment() {
 
         VehicleHistoryManager.initialize(requireContext())
         setupRecyclerView()
-        setupReportButtons()
+        setupButtons()
+
+        // Fragment'a girerken otomatik olarak verileri yükle
         loadVehicleHistory()
+        fetchAllVehicleLogs()
 
         // Periyodik güncellemeyi başlat
         startPeriodicUpdate()
@@ -105,15 +107,38 @@ class RecentVehiclesFragment : Fragment() {
         }
     }
 
-    private fun setupReportButtons() {
+    private fun setupButtons() {
+        // Yenile butonu
+        binding.btnRefresh.setOnClickListener {
+            refreshData()
+        }
+
         // CSV Rapor butonu
         binding.btnExportCsv?.setOnClickListener {
             exportToCSV()
         }
+
         // PDF Rapor butonu
         binding.btnExportPdf?.setOnClickListener {
             exportToPDF()
         }
+    }
+
+    // Yenileme fonksiyonu
+    private fun refreshData() {
+        // Progress bar'ı göster
+        binding.progressBar.visibility = View.VISIBLE
+
+        // VehicleHistoryManager'dan verileri yeniden yükle
+        loadVehicleHistory()
+
+        // API'den güncel log bilgilerini al
+        fetchAllVehicleLogs()
+
+        // 2 saniye sonra progress bar'ı gizle
+        Handler(Looper.getMainLooper()).postDelayed({
+            binding.progressBar.visibility = View.GONE
+        }, 2000)
     }
 
     private fun loadVehicleHistory() {
@@ -121,7 +146,6 @@ class RecentVehiclesFragment : Fragment() {
 
         if (history.isNotEmpty()) {
             showVehicles(history)
-            fetchAllVehicleLogs()
         } else {
             showEmptyState()
         }
@@ -277,22 +301,19 @@ class RecentVehiclesFragment : Fragment() {
         }
     }
 
+    // ... existing code ...
+
     private fun createPDFReport(file: File) {
         try {
             val writer = PdfWriter(file)
             val pdf = PdfDocument(writer)
             val document = Document(pdf)
 
-            // Türkçe karakterler için farklı font deneyelim
-            val font = try {
-                PdfFontFactory.createFont(StandardFonts.HELVETICA, PdfEncodings.UTF8)
-            } catch (e: Exception) {
-                // Fallback olarak varsayılan font
-                PdfFontFactory.createFont(StandardFonts.HELVETICA)
-            }
+            // Basit font kullan
+            val font = PdfFontFactory.createFont("Helvetica")
 
-            // Başlık
-            val title = Paragraph("Arac Raporu") // Türkçe karakterleri kaldırdık
+            // Baslik
+            val title = Paragraph("Arac Raporu")
                 .setFont(font)
                 .setFontSize(20f)
                 .setBold()
@@ -308,11 +329,11 @@ class RecentVehiclesFragment : Fragment() {
 
             document.add(Paragraph("\n"))
 
-            // Tablo oluştur - daha az sütun ve daha geniş
-            val table = Table(8) // 8 sütuna düşürdük
+            // Tablo olustur - daha az sutun ve daha genis
+            val table = Table(8) // 8 sutuna dusurduk
             table.setWidth(UnitValue.createPercentValue(100f))
 
-            // Tablo başlıkları - Türkçe karakterleri kaldırdık
+            // Tablo basliklari - Turkce karakterleri kaldirdik
             val headers = arrayOf(
                 "Plaka", "Giris", "Cikis", "Toplam Sure",
                 "CO2 Emisyonu", "Marka", "Model", "Yil"
@@ -322,11 +343,11 @@ class RecentVehiclesFragment : Fragment() {
                 val cell = Cell().add(Paragraph(header).setFont(font).setBold())
                 cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
                 cell.setTextAlignment(TextAlignment.CENTER)
-                cell.setFontSize(8f) // Font boyutunu küçülttük
+                cell.setFontSize(8f) // Font boyutunu kuculttuk
                 table.addHeaderCell(cell)
             }
 
-            // Araç verileri
+            // Arac verileri
             val history = VehicleHistoryManager.getVehicleHistory()
             history.forEach { historyItem ->
                 val plaka = historyItem.vehicle.plaka
@@ -336,13 +357,13 @@ class RecentVehiclesFragment : Fragment() {
                     // Plaka
                     addCell(table, plaka, 8f, font)
 
-                    // Giriş zamanı
+                    // Giris zamani
                     addCell(table, formatDate(vehicleLog.entryTime), 8f, font)
 
-                    // Çıkış zamanı
+                    // Cikis zamani
                     addCell(table, if (vehicleLog.exitTime != null) formatDate(vehicleLog.exitTime) else "Cikis yapilmadi", 8f, font)
 
-                    // Toplam süre (dakika cinsinden)
+                    // Toplam sure (dakika cinsinden)
                     val totalMinutes = (vehicleLog.totalTimeSeconds ?: 0) / 60
                     addCell(table, "${totalMinutes}dk", 8f, font)
 
@@ -355,14 +376,14 @@ class RecentVehiclesFragment : Fragment() {
                     // Model
                     addCell(table, historyItem.vehicle.model ?: "", 8f, font)
 
-                    // Yıl
+                    // Yil
                     addCell(table, (historyItem.vehicle.arac_yili ?: 0).toString(), 8f, font)
                 }
             }
 
             document.add(table)
 
-            // Özet bilgiler
+            // Ozet bilgiler
             document.add(Paragraph("\n"))
             val totalVehicles = history.size
             val totalEmissions = history.sumOf { historyItem ->
@@ -383,18 +404,20 @@ class RecentVehiclesFragment : Fragment() {
             document.close()
 
         } catch (e: Exception) {
-            Log.e("RecentVehiclesFragment", "PDF oluşturma hatası: ${e.message}")
+            Log.e("RecentVehiclesFragment", "PDF olusturma hatasi: ${e.message}")
             throw e
         }
     }
 
-    // Hücre ekleme yardımcı metodu
+    // Hucre ekleme yardimci metodu
     private fun addCell(table: Table, text: String, fontSize: Float, font: PdfFont) {
         val cell = Cell().add(Paragraph(text).setFont(font).setFontSize(fontSize))
         cell.setTextAlignment(TextAlignment.CENTER)
-        cell.setPadding(2f) // Padding'i azalttık
+        cell.setPadding(2f) // Padding'i azalttik
         table.addCell(cell)
     }
+
+// ... existing code ...
 
     // Dosyayı medya tarayıcısına bildir (Downloads klasöründe görünmesi için)
     private fun notifyMediaScanner(file: File) {
