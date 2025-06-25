@@ -3,9 +3,9 @@
     <item
         android:id="@+id/cameraFragment"
         android:icon="@drawable/ic_camera"
-        android:title="Kamera" />
+        android:title="" /> <!-- Başlık boş -->
     <item
         android:id="@+id/recentVehiclesFragment"
         android:icon="@drawable/ic_map"
-        android:title="Son Araçlar" />
+        android:title="" /> <!-- Başlık boş -->
 </menu>

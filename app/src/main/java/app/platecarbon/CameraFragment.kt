@@ -46,11 +46,14 @@ class CameraFragment : Fragment() {
     private var camera: Camera? = null
     private var isFlashOn = false
 
+    // Resim dosyasını saklamak için
+    private var currentImageFile: File? = null
+
     // Galeri seçimi için launcher
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
             try {
-                // URI’den dosyaya çevir
+                // URI'den dosyaya çevir
                 val inputStream = requireContext().contentResolver.openInputStream(it)
                 val tempFile = File.createTempFile("gallery_", ".jpg", requireContext().cacheDir)
                 inputStream?.use { input ->
@@ -66,7 +69,7 @@ class CameraFragment : Fragment() {
         }
     }
 
-    // İzin launcher’ları
+    // İzin launcher'ları
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
             startCamera()
@@ -141,9 +144,7 @@ class CameraFragment : Fragment() {
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                 cameraProvider.unbindAll()
                 camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-                Log.d("CameraFragment", "Kamera bağlandı, camera nesnesi atandı")
             } catch (e: Exception) {
-                Log.e("CameraFragment", "Kamera başlatılamadı: ${e.message}")
                 Toast.makeText(requireContext(), "Kamera başlatılamadı: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(requireContext()))
@@ -178,13 +179,10 @@ class CameraFragment : Fragment() {
                                 input.copyTo(output)
                             }
                         }
-                        Log.d("CameraFragment", "Fotoğraf kaydedildi: ${file.absolutePath}")
                         sendImageToApi(file)
                     }
                 }
-
                 override fun onError(exception: ImageCaptureException) {
-                    Log.e("CameraFragment", "Fotoğraf çekilemedi: ${exception.message}")
                     Toast.makeText(requireContext(), "Fotoğraf çekilemedi", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -193,13 +191,9 @@ class CameraFragment : Fragment() {
 
     private fun sendImageToApi(photoFile: File) {
         val requestFile = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
-        Log.d("CameraFragment", "RequestBody oluşturuldu: ${photoFile.name}")
-
         val body = MultipartBody.Part.createFormData("file", photoFile.name, requestFile)
-        Log.d("CameraFragment", "MultipartBody oluşturuldu")
-
+        currentImageFile = photoFile // Resim dosyasını sakla
         val call = ApiClient.plateService.uploadPlateImage(body)
-        Log.d("CameraFragment", "API çağrısı başlatılıyor")
         call.enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 Log.d("CameraFragment", "API yanıtı alındı: HTTP ${response.code()}")
@@ -224,7 +218,6 @@ class CameraFragment : Fragment() {
                             )
                             VehicleHistoryManager.addVehicleToHistory(vehicleRequest)
 
-
                             val bundle = Bundle().apply {
                                 putString("plaka", arac.plaka ?: "")
                                 putString("marka", arac.marka ?: "")
@@ -239,6 +232,7 @@ class CameraFragment : Fragment() {
                             val bundle = Bundle().apply {
                                 putString("plaka", apiResponse.plaka)
                                 putString("marka", apiResponse.marka)
+                                putSerializable("imageFile", currentImageFile)
                             }
                             findNavController().navigate(R.id.vehicleAddFragment, bundle)
                         } else {
@@ -249,7 +243,6 @@ class CameraFragment : Fragment() {
                     }
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "Hata mesajı alınamadı"
-                    Log.e("CameraFragment", "API hatası: HTTP ${response.code()}, Mesaj: $errorBody")
                     Toast.makeText(requireContext(), "API hatası: $errorBody", Toast.LENGTH_LONG).show()
                 }
             }
@@ -263,6 +256,7 @@ class CameraFragment : Fragment() {
             }
         })
     }
+
     private fun toggleFlash() {
         camera?.let { cam ->
             if (cam.cameraInfo.hasFlashUnit()) {
@@ -276,17 +270,20 @@ class CameraFragment : Fragment() {
             }
         } ?: Toast.makeText(requireContext(), "Kamera hazır değil", Toast.LENGTH_SHORT).show()
     }
+
     private fun setupFlashButton() {
         binding.flashButton.setOnClickListener {
             toggleFlash()
         }
     }
+
     private fun getOutputDirectory(): File {
         val mediaDir = requireContext().externalMediaDirs.firstOrNull()?.let {
             File(it, "PlateCarbon").apply { mkdirs() }
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir else requireContext().filesDir
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         cameraExecutor.shutdown()

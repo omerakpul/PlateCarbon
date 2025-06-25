@@ -11,8 +11,6 @@
         android:orientation="vertical"
         android:background="@color/surface_color">
 
-
-        <!-- Kamera Container -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cameraContainer"
             android:layout_width="match_parent"
@@ -38,7 +36,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
 
-                <!-- Sağ Üst: Flash -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/flashButton"
                     style="@style/Widget.Material3.Button.IconButton.Filled"
@@ -52,7 +49,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
 
-                <!-- Sağ Orta: Capture ve Gallery -->
                 <LinearLayout
                     android:id="@+id/buttonContainer"
                     android:layout_width="wrap_content"

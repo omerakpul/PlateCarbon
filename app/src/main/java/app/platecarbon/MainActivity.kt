@@ -23,22 +23,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Window Insets için padding ayarı
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
 
-        // Navigation Controller'ı ayarla
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Bottom Navigation'ı Navigation ile bağla
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Bazı fragment'larda navbar'ı gizle
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 else -> binding.bottomNavigation.visibility = View.VISIBLE

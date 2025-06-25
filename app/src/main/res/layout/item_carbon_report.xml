@@ -6,7 +6,6 @@
     android:padding="12dp"
     android:background="?attr/selectableItemBackground">
 
-    <!-- Plaka -->
     <TextView
         android:id="@+id/tvPlate"
         android:layout_width="wrap_content"
@@ -17,7 +16,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Giriş Saati -->
     <TextView
         android:id="@+id/tvEntryTime"
         android:layout_width="wrap_content"
@@ -27,7 +25,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvPlate"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Çıkış Saati -->
     <TextView
         android:id="@+id/tvExitTime"
         android:layout_width="wrap_content"
@@ -37,7 +34,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvEntryTime"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Toplam Süre -->
     <TextView
         android:id="@+id/tvTotalTime"
         android:layout_width="wrap_content"
@@ -47,7 +43,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvExitTime"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Hareket Süresi -->
     <TextView
         android:id="@+id/tvMovingTime"
         android:layout_width="wrap_content"
@@ -57,7 +52,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvTotalTime"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Karbon Emisyonu -->
     <TextView
         android:id="@+id/tvCarbonEmission"
         android:layout_width="wrap_content"

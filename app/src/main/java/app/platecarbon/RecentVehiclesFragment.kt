@@ -31,6 +31,10 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
 import com.itextpdf.kernel.colors.ColorConstants
+import com.itextpdf.io.font.PdfEncodings
+import com.itextpdf.io.font.constants.StandardFonts
+import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.font.PdfFont
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -45,6 +49,10 @@ class RecentVehiclesFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var vehicleHistoryAdapter: VehicleHistoryAdapter
     private val vehicleLogs = mutableMapOf<String, VehicleLog>()
+
+    // Tarih formatları
+    private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+    private val displayDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
 
     // Periyodik güncelleme için
     private val handler = Handler(Looper.getMainLooper())
@@ -182,6 +190,19 @@ class RecentVehiclesFragment : Fragment() {
         })
     }
 
+    // Tarih formatını düzenle
+    private fun formatDate(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "Bilinmiyor"
+        return try {
+            // Milisaniyeyi ve 'T'yi dikkate alacak şekilde formatı ayarla
+            val adjustedDateString = dateString.substringBefore(".")
+            val date = apiDateFormat.parse(adjustedDateString)
+            if (date != null) displayDateFormat.format(date) else "Hatalı Tarih"
+        } catch (e: Exception) {
+            Log.e("RecentVehiclesFragment", "Tarih parse hatası: $dateString", e)
+            dateString // Hata olursa orijinal string'i döndür
+        }
+    }
 
     // CSV Raporu oluştur
     private fun exportToCSV() {
@@ -206,8 +227,8 @@ class RecentVehiclesFragment : Fragment() {
                     if (vehicleLog != null) {
                         // Plaka bilgisini historyItem'dan al, vehicleLog'dan değil
                         writer.append("\"${plaka}\",")
-                        writer.append("\"${vehicleLog.entryTime ?: ""}\",")
-                        writer.append("\"${vehicleLog.exitTime ?: "Çıkış yapılmadı"}\",")
+                        writer.append("\"${formatDate(vehicleLog.entryTime)}\",")
+                        writer.append("\"${if (vehicleLog.exitTime != null) formatDate(vehicleLog.exitTime) else "Çıkış yapılmadı"}\",")
                         writer.append("${vehicleLog.totalTimeSeconds ?: 0},")
                         writer.append("${vehicleLog.totalParkedSeconds ?: 0},")
                         writer.append("${vehicleLog.actualMovingSeconds ?: 0},")
@@ -262,36 +283,46 @@ class RecentVehiclesFragment : Fragment() {
             val pdf = PdfDocument(writer)
             val document = Document(pdf)
 
+            // Türkçe karakterler için farklı font deneyelim
+            val font = try {
+                PdfFontFactory.createFont(StandardFonts.HELVETICA, PdfEncodings.UTF8)
+            } catch (e: Exception) {
+                // Fallback olarak varsayılan font
+                PdfFontFactory.createFont(StandardFonts.HELVETICA)
+            }
+
             // Başlık
-            val title = Paragraph("Araç Raporu")
+            val title = Paragraph("Arac Raporu") // Türkçe karakterleri kaldırdık
+                .setFont(font)
                 .setFontSize(20f)
                 .setBold()
                 .setTextAlignment(TextAlignment.CENTER)
             document.add(title)
 
             // Tarih
-            val date = Paragraph("Oluşturulma Tarihi: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())}")
+            val date = Paragraph("Olusturulma Tarihi: ${SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date())}")
+                .setFont(font)
                 .setFontSize(12f)
                 .setTextAlignment(TextAlignment.CENTER)
             document.add(date)
 
             document.add(Paragraph("\n"))
 
-            // Tablo oluştur
-            val table = Table(12) // 12 sütun
+            // Tablo oluştur - daha az sütun ve daha geniş
+            val table = Table(8) // 8 sütuna düşürdük
             table.setWidth(UnitValue.createPercentValue(100f))
 
-            // Tablo başlıkları
+            // Tablo başlıkları - Türkçe karakterleri kaldırdık
             val headers = arrayOf(
-                "Plaka", "Giriş Zamanı", "Çıkış Zamanı", "Toplam Süre (s)",
-                "Park Süresi (s)", "Hareket Süresi (s)", "CO2 Emisyonu (g/km)",
-                "Marka", "Model", "Renk", "Yakıt Türü", "Araç Yılı"
+                "Plaka", "Giris", "Cikis", "Toplam Sure",
+                "CO2 Emisyonu", "Marka", "Model", "Yil"
             )
 
             headers.forEach { header ->
-                val cell = Cell().add(Paragraph(header).setBold())
+                val cell = Cell().add(Paragraph(header).setFont(font).setBold())
                 cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
                 cell.setTextAlignment(TextAlignment.CENTER)
+                cell.setFontSize(8f) // Font boyutunu küçülttük
                 table.addHeaderCell(cell)
             }
 
@@ -302,18 +333,30 @@ class RecentVehiclesFragment : Fragment() {
                 val vehicleLog = vehicleLogs[plaka]
 
                 if (vehicleLog != null) {
-                    table.addCell(Cell().add(Paragraph(plaka)))
-                    table.addCell(Cell().add(Paragraph(vehicleLog.entryTime ?: "")))
-                    table.addCell(Cell().add(Paragraph(vehicleLog.exitTime ?: "Çıkış yapılmadı")))
-                    table.addCell(Cell().add(Paragraph((vehicleLog.totalTimeSeconds ?: 0).toString())))
-                    table.addCell(Cell().add(Paragraph((vehicleLog.totalParkedSeconds ?: 0).toString())))
-                    table.addCell(Cell().add(Paragraph((vehicleLog.actualMovingSeconds ?: 0).toString())))
-                    table.addCell(Cell().add(Paragraph((vehicleLog.carbonEmission ?: 0).toString())))
-                    table.addCell(Cell().add(Paragraph(historyItem.vehicle.marka ?: "")))
-                    table.addCell(Cell().add(Paragraph(historyItem.vehicle.model ?: "")))
-                    table.addCell(Cell().add(Paragraph(historyItem.vehicle.renk ?: "")))
-                    table.addCell(Cell().add(Paragraph(historyItem.vehicle.yakit_turu ?: "")))
-                    table.addCell(Cell().add(Paragraph((historyItem.vehicle.arac_yili ?: 0).toString())))
+                    // Plaka
+                    addCell(table, plaka, 8f, font)
+
+                    // Giriş zamanı
+                    addCell(table, formatDate(vehicleLog.entryTime), 8f, font)
+
+                    // Çıkış zamanı
+                    addCell(table, if (vehicleLog.exitTime != null) formatDate(vehicleLog.exitTime) else "Cikis yapilmadi", 8f, font)
+
+                    // Toplam süre (dakika cinsinden)
+                    val totalMinutes = (vehicleLog.totalTimeSeconds ?: 0) / 60
+                    addCell(table, "${totalMinutes}dk", 8f, font)
+
+                    // CO2 Emisyonu
+                    addCell(table, "${vehicleLog.carbonEmission ?: 0} g/km", 8f, font)
+
+                    // Marka
+                    addCell(table, historyItem.vehicle.marka ?: "", 8f, font)
+
+                    // Model
+                    addCell(table, historyItem.vehicle.model ?: "", 8f, font)
+
+                    // Yıl
+                    addCell(table, (historyItem.vehicle.arac_yili ?: 0).toString(), 8f, font)
                 }
             }
 
@@ -328,10 +371,11 @@ class RecentVehiclesFragment : Fragment() {
             }
 
             val summary = Paragraph("""
-                Özet Bilgiler:
-                Toplam Araç Sayısı: $totalVehicles
+                Ozet Bilgiler:
+                Toplam Arac Sayisi: $totalVehicles
                 Toplam CO2 Emisyonu: $totalEmissions g/km
             """.trimIndent())
+                .setFont(font)
                 .setFontSize(14f)
                 .setBold()
             document.add(summary)
@@ -342,6 +386,14 @@ class RecentVehiclesFragment : Fragment() {
             Log.e("RecentVehiclesFragment", "PDF oluşturma hatası: ${e.message}")
             throw e
         }
+    }
+
+    // Hücre ekleme yardımcı metodu
+    private fun addCell(table: Table, text: String, fontSize: Float, font: PdfFont) {
+        val cell = Cell().add(Paragraph(text).setFont(font).setFontSize(fontSize))
+        cell.setTextAlignment(TextAlignment.CENTER)
+        cell.setPadding(2f) // Padding'i azalttık
+        table.addCell(cell)
     }
 
     // Dosyayı medya tarayıcısına bildir (Downloads klasöründe görünmesi için)

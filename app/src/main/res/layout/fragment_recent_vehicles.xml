@@ -32,7 +32,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- CSV Butonu -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnExportCsv"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -48,7 +47,6 @@
             app:iconTint="@color/primary_color"
             app:strokeColor="@color/primary_color" />
 
-        <!-- PDF Butonu -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnExportPdf"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"

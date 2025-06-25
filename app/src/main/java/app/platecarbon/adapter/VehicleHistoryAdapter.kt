@@ -74,21 +74,20 @@ class VehicleHistoryAdapter(
                 if (date != null) displayDateFormat.format(date) else "Hatalı Tarih"
             } catch (e: Exception) {
                 Log.e("VehicleHistoryAdapter", "Tarih parse hatası: $dateString", e)
-                dateString // Hata olursa orijinal string'i döndür
+                dateString
             }
         }
 
         private fun formatDuration(totalSeconds: Int?): String {
-            if (totalSeconds == null || totalSeconds < 0) return "0s"
+            if (totalSeconds == null || totalSeconds < 0) return "0dk"
 
             val hours = totalSeconds / 3600
             val minutes = (totalSeconds % 3600) / 60
-            val seconds = totalSeconds % 60
 
             return when {
                 hours > 0 -> "${hours}sa ${minutes}dk"
-                minutes > 0 -> "${minutes}dk ${seconds}s"
-                else -> "${seconds}s"
+                minutes > 0 -> "${minutes}dk"
+                else -> "1dk" // 1 dakikadan az ise 1dk göster
             }
         }
     }

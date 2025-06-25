@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/surface_color">
 
-    <!-- Geri Butonu (Sadece İkon) -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="36dp"
@@ -32,7 +31,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Araç Bilgileri (Plaka ile) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/vehicleInfoCard"
                 android:layout_width="match_parent"
@@ -51,7 +49,6 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp">
 
-                    <!-- Plaka Başlığı -->
                     <TextView
                         android:id="@+id/tvPlateNumber"
                         android:layout_width="wrap_content"
@@ -84,7 +81,6 @@
                         android:background="@color/divider"
                         app:layout_constraintTop_toBottomOf="@id/tvVehicleInfoTitle" />
 
-                    <!-- Marka -->
                     <TextView
                         android:id="@+id/tvBrandLabel"
                         android:layout_width="wrap_content"
@@ -110,7 +106,6 @@
                         app:layout_constraintTop_toTopOf="@id/tvBrandLabel"
                         app:layout_constraintBottom_toBottomOf="@id/tvBrandLabel" />
 
-                    <!-- Model -->
                     <TextView
                         android:id="@+id/tvModelLabel"
                         android:layout_width="wrap_content"
@@ -137,7 +132,6 @@
                         app:layout_constraintTop_toTopOf="@id/tvModelLabel"
                         app:layout_constraintBottom_toBottomOf="@id/tvModelLabel" />
 
-                    <!-- Yıl -->
                     <TextView
                         android:id="@+id/tvYearLabel"
                         android:layout_width="wrap_content"
@@ -165,7 +159,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Emisyon Bilgileri -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/emissionCard"
                 android:layout_width="match_parent"

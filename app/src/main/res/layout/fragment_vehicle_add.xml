@@ -104,11 +104,12 @@
                         app:layout_constraintTop_toBottomOf="@id/tilPlaka"
                         app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/markaEditText"
+                        <Spinner
+                            android:id="@+id/markaSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="16dp"
                             android:textColor="@color/black"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -125,11 +126,12 @@
                         app:layout_constraintTop_toBottomOf="@id/tilMarka"
                         app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/modelEditText"
+                        <Spinner
+                            android:id="@+id/modelSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="16dp"
                             android:textColor="@color/black"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -146,11 +148,12 @@
                         app:layout_constraintTop_toBottomOf="@id/tilModel"
                         app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/renkEditText"
+                        <Spinner
+                            android:id="@+id/renkSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="16dp"
                             android:textColor="@color/black"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -167,11 +170,12 @@
                         app:layout_constraintTop_toBottomOf="@id/tilRenk"
                         app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/yakitEditText"
+                        <Spinner
+                            android:id="@+id/yakitSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="16dp"
                             android:textColor="@color/black"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -188,11 +192,12 @@
                         app:layout_constraintTop_toBottomOf="@id/tilYakit"
                         app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/yilEditText"
+                        <Spinner
+                            android:id="@+id/yilSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="16dp"
                             android:textColor="@color/black"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -209,11 +214,12 @@
                         app:layout_constraintTop_toBottomOf="@id/tilYil"
                         app:layout_constraintStart_toStartOf="parent">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/aracTipiEditText"
+                        <Spinner
+                            android:id="@+id/aracTipiSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
+                            android:background="@drawable/edit_text_background"
+                            android:padding="16dp"
                             android:textColor="@color/black"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
