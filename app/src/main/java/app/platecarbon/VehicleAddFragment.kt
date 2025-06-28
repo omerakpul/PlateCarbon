@@ -5,12 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import app.platecarbon.R
-import app.platecarbon.VehicleHistoryManager
 import app.platecarbon.databinding.FragmentVehicleAddBinding
 import app.platecarbon.model.VehicleRequest
 import app.platecarbon.model.GenericResponse
@@ -192,16 +190,8 @@ class VehicleAddFragment : Fragment() {
                     if (response.isSuccessful) {
                         val message = response.body()?.message ?: "Başarıyla kaydedildi"
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-
-                        // VehicleHistoryManager'ı başlat
-                        VehicleHistoryManager.initialize(requireContext())
-
                         // API'den dönen araç bilgilerini al (karbon emisyon dahil)
                         val savedVehicle = response.body()?.arac ?: vehicleRequest
-
-                        // Araç bilgilerini geçmişe ekle
-                        VehicleHistoryManager.addVehicleToHistory(savedVehicle)
-
                         // Aynı resmi tekrar gönder (sanki yeni fotoğraf çekilmiş gibi)
                         savedImageFile?.let { imageFile ->
                             val requestFile = imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())

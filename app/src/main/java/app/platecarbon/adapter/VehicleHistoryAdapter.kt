@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
-import app.platecarbon.VehicleHistoryItem
 import app.platecarbon.databinding.ItemVehicleLogBinding
 import app.platecarbon.model.VehicleLog
 import app.platecarbon.R
@@ -14,8 +13,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class VehicleHistoryAdapter(
-    private var historyItems: List<VehicleHistoryItem>,
-    private val onVehicleClick: (VehicleHistoryItem) -> Unit
+    private var vehicleLogs: List<VehicleLog>,
+    private val onVehicleClick: (VehicleLog) -> Unit
 ) : RecyclerView.Adapter<VehicleHistoryAdapter.VehicleHistoryViewHolder>() {
 
     // API'den gelen tarih formatı (ör: 2025-06-22T13:21:23.759914)
@@ -23,60 +22,46 @@ class VehicleHistoryAdapter(
     // Göstermek istediğimiz tarih formatı
     private val displayDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
 
-    // Log bilgilerini tutmak için map
-    private val vehicleLogs = mutableMapOf<String, VehicleLog>()
-
     inner class VehicleHistoryViewHolder(private val binding: ItemVehicleLogBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(historyItem: VehicleHistoryItem) {
-            val vehicle = historyItem.vehicle
-            val plaka = vehicle.plaka
+        fun bind(vehicleLog: VehicleLog) {
+            val plaka = vehicleLog.plate ?: "Bilinmeyen Plaka"
 
             // Plaka
             binding.tvPlateNumber.text = plaka
 
-            // Log bilgileri varsa göster
-            val vehicleLog = vehicleLogs[plaka]
+            // API'den gelen log bilgilerini göster
+            if (vehicleLog.carbonEmission != null) {
+                val emissionText = formatEmissionValue(vehicleLog.carbonEmission)
+                binding.tvCarbonEmission.text = emissionText
+                binding.tvCarbonEmission.visibility = View.VISIBLE
 
-            if (vehicleLog != null) {
-                // API'den gelen log bilgilerini göster
-                if (vehicleLog.carbonEmission != null) {
-                    binding.tvCarbonEmission.text = "%.2f g/km".format(vehicleLog.carbonEmission)
-                    binding.tvCarbonEmission.visibility = View.VISIBLE
-
-                    // CO2 değerine göre renk belirle
-                    val emissionColor = getEmissionColor(vehicleLog.carbonEmission)
-                    binding.tvCarbonEmission.setTextColor(emissionColor)
-                } else {
-                    binding.tvCarbonEmission.visibility = View.GONE
-                }
-
-                binding.tvEntryTime.text = "Giriş: ${formatDate(vehicleLog.entryTime)}"
-                binding.tvExitTime.text = if (vehicleLog.exitTime != null) "Çıkış: ${formatDate(vehicleLog.exitTime)}" else "Çıkış yapılmadı"
-
-                // Süreleri dinamik olarak ve etiketleriyle birlikte göster
-                binding.tvTotalTime.text = "${formatDuration(vehicleLog.totalTimeSeconds)}\nToplam"
-                binding.tvParkedTime.text = "${formatDuration(vehicleLog.totalParkedSeconds)}\nPark"
-                binding.tvMovingTime.text = "${formatDuration(vehicleLog.actualMovingSeconds)}\nHareket"
-
+                // CO₂ değerine göre renk belirle
+                val emissionColor = getEmissionColor(vehicleLog.carbonEmission)
+                binding.tvCarbonEmission.setTextColor(emissionColor)
             } else {
-                // Log bilgisi yoksa "Araç faal halde" yazısını göster
                 binding.tvCarbonEmission.visibility = View.GONE
-                binding.tvEntryTime.text = "Araç faal halde"
-                binding.tvExitTime.text = "Detay bilgisi bekleniyor"
-                binding.tvTotalTime.text = ""
-                binding.tvParkedTime.text = ""
-                binding.tvMovingTime.text = ""
             }
-            binding.root.setOnClickListener(null)
+
+            binding.tvEntryTime.text = "Giriş: ${formatDate(vehicleLog.entryTime)}"
+            binding.tvExitTime.text = if (vehicleLog.exitTime != null) "Çıkış: ${formatDate(vehicleLog.exitTime)}" else "Çıkış yapılmadı"
+
+            // Süreleri dinamik olarak ve etiketleriyle birlikte göster
+            binding.tvTotalTime.text = "${formatDuration(vehicleLog.totalTimeSeconds)}\nToplam"
+            binding.tvParkedTime.text = "${formatDuration(vehicleLog.totalParkedSeconds)}\nPark"
+            binding.tvMovingTime.text = "${formatDuration(vehicleLog.actualMovingSeconds)}\nHareket"
+
+            binding.root.setOnClickListener {
+                onVehicleClick(vehicleLog)
+            }
         }
 
         // CO2 değerine göre renk belirleme fonksiyonu
         private fun getEmissionColor(emission: Float): Int {
             return when {
-                emission < 60 -> ContextCompat.getColor(itemView.context, R.color.emission_low) // Yeşil
-                emission <= 80 -> ContextCompat.getColor(itemView.context, R.color.emission_high) // Sarı
-                else -> ContextCompat.getColor(itemView.context, R.color.emission_very_high) // Kırmızı
+                emission < 1000 -> ContextCompat.getColor(itemView.context, R.color.emission_low) // Yeşil - Düşük emisyon
+                emission < 1750 -> ContextCompat.getColor(itemView.context, R.color.emission_high) // Turuncu - Orta emisyon
+                else -> ContextCompat.getColor(itemView.context, R.color.emission_very_high) // Kırmızı - Yüksek emisyon
             }
         }
 
@@ -105,6 +90,28 @@ class VehicleHistoryAdapter(
                 else -> "1dk" // 1 dakikadan az ise 1dk göster
             }
         }
+
+        // CO₂ değerini formatla - 1000'den büyükse kg cinsinden göster, küsürat sadece gerektiğinde
+        private fun formatEmissionValue(emission: Float): String {
+            return if (emission >= 1000) {
+                val kgValue = emission / 1000
+                if (kgValue == kgValue.toInt().toFloat()) {
+                    // Tam sayı ise küsürat gösterme
+                    "${kgValue.toInt()} kg CO₂"
+                } else {
+                    // Küsürat varsa 2 basamak göster
+                    "%.2f kg CO₂".format(kgValue)
+                }
+            } else {
+                if (emission == emission.toInt().toFloat()) {
+                    // Tam sayı ise küsürat gösterme
+                    "${emission.toInt()} g CO₂"
+                } else {
+                    // Küsürat varsa 2 basamak göster
+                    "%.2f g CO₂".format(emission)
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VehicleHistoryViewHolder {
@@ -113,37 +120,13 @@ class VehicleHistoryAdapter(
     }
 
     override fun onBindViewHolder(holder: VehicleHistoryViewHolder, position: Int) {
-        holder.bind(historyItems[position])
+        holder.bind(vehicleLogs[position])
     }
 
-    override fun getItemCount(): Int = historyItems.size
+    override fun getItemCount(): Int = vehicleLogs.size
 
-    fun updateVehicles(newHistoryItems: List<VehicleHistoryItem>) {
-        this.historyItems = newHistoryItems
-        notifyDataSetChanged()
-    }
-
-    // Tüm araç log bilgilerini güncellemek için yeni metod - liste ile
-    fun updateAllVehicleLogsFromList(allLogs: List<VehicleLog>) {
-        vehicleLogs.clear()
-        allLogs.forEach { vehicleLog ->
-            if (vehicleLog.plate != null) {
-                vehicleLogs[vehicleLog.plate] = vehicleLog
-            }
-        }
-        notifyDataSetChanged()
-    }
-
-    // Tek bir aracın log bilgisini güncellemek için metod
-    fun updateVehicleWithLog(plaka: String, vehicleLog: VehicleLog) {
-        vehicleLogs[plaka] = vehicleLog
-        notifyDataSetChanged()
-    }
-
-    // Tüm araç log bilgilerini güncellemek için yeni metod - map ile
-    fun updateAllVehicleLogs(allLogs: Map<String, VehicleLog>) {
-        vehicleLogs.clear()
-        vehicleLogs.putAll(allLogs)
+    fun updateVehicles(newVehicleLogs: List<VehicleLog>) {
+        this.vehicleLogs = newVehicleLogs
         notifyDataSetChanged()
     }
 }

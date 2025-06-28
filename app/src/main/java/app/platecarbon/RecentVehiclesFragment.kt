@@ -18,7 +18,6 @@ import app.platecarbon.databinding.FragmentRecentVehiclesBinding
 import app.platecarbon.adapter.VehicleHistoryAdapter
 import app.platecarbon.model.AllVehicleLogsResponse
 import app.platecarbon.model.VehicleLog
-import app.platecarbon.model.VehicleRequest
 import app.platecarbon.network.ApiClient
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
@@ -29,7 +28,6 @@ import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
 import com.itextpdf.kernel.colors.ColorConstants
-import com.itextpdf.io.font.PdfEncodings
 import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.font.PdfFont
 import retrofit2.Call
@@ -96,8 +94,8 @@ class RecentVehiclesFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        vehicleHistoryAdapter = VehicleHistoryAdapter(emptyList()) { historyItem ->
-            // Tıklama olayı yok
+        vehicleHistoryAdapter = VehicleHistoryAdapter(emptyList()) { vehicleLog ->
+            // Tıklama olayı - şu an için boş
         }
         binding.rvVehicles.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -153,66 +151,45 @@ class RecentVehiclesFragment : Fragment() {
                         vehicleLogs.clear()
 
                         apiResponse.logs.forEach { vehicleLog ->
-                            // Debug log'ları ekle
-                            Log.d("RecentVehiclesFragment", "Araç: ${vehicleLog.plate}")
-                            Log.d("RecentVehiclesFragment", "Emisyon: ${vehicleLog.carbonEmission}")
-                            Log.d("RecentVehiclesFragment", "Giriş: ${vehicleLog.entryTime}")
-                            Log.d("RecentVehiclesFragment", "Çıkış: ${vehicleLog.exitTime}")
-
                             // Plate null ise geç
                             if (vehicleLog.plate != null) {
                                 vehicleLogs.add(vehicleLog)
-                            } else {
-                                Log.w("RecentVehiclesFragment", "Plate null, bu kayıt atlanıyor")
+                            }
+                        }
+
+                        // Son giren en üstte olacak şekilde sırala (giriş zamanına göre azalan sıralama)
+                        vehicleLogs.sortByDescending { vehicleLog ->
+                            try {
+                                // Giriş zamanını parse et
+                                val adjustedDateString = vehicleLog.entryTime.substringBefore(".")
+                                val date = apiDateFormat.parse(adjustedDateString)
+                                date?.time ?: 0L
+                            } catch (e: Exception) {
+                                Log.e("RecentVehiclesFragment", "Tarih parse hatası: ${vehicleLog.entryTime}", e)
+                                0L // Hata olursa en sona koy
                             }
                         }
 
                         // Adapter'ı güncelle
-                        updateAdapterWithVehicleLogs()
+                        vehicleHistoryAdapter.updateVehicles(vehicleLogs)
 
-                        Log.d("RecentVehiclesFragment", "${vehicleLogs.size} araç log bilgisi güncellendi")
+                        if (vehicleLogs.isNotEmpty()) {
+                            showVehicles()
+                        } else {
+                            showEmptyState()
+                        }
                     } else {
-                        Log.d("RecentVehiclesFragment", "Araç log bilgisi bulunamadı")
                         showEmptyState()
                     }
                 } else {
-                    val errorMessage = response.errorBody()?.string() ?: "Bilinmeyen hata"
-                    Log.e("RecentVehiclesFragment", "API hatası: ${response.code()} - $errorMessage")
                     showEmptyState()
                 }
             }
 
             override fun onFailure(call: Call<AllVehicleLogsResponse>, t: Throwable) {
-                Log.e("RecentVehiclesFragment", "Bağlantı hatası: ${t.message}")
                 showEmptyState()
             }
         })
-    }
-
-    private fun updateAdapterWithVehicleLogs() {
-        if (vehicleLogs.isNotEmpty()) {
-            showVehicles()
-            // VehicleLog'ları VehicleHistoryItem'lara dönüştür
-            val historyItems = vehicleLogs.map { vehicleLog ->
-                val vehicle = VehicleRequest(
-                    plaka = vehicleLog.plate ?: "",
-                    marka = "Bilinmiyor",
-                    model = "Bilinmiyor",
-                    renk = "Bilinmiyor",
-                    yakit_turu = "Bilinmiyor",
-                    arac_tipi = "Bilinmiyor",
-                    karbon_emisyon = vehicleLog.carbonEmission,
-                    arac_yili = 0
-                )
-                app.platecarbon.VehicleHistoryItem(vehicle)
-            }
-            vehicleHistoryAdapter.updateVehicles(historyItems)
-
-            // Log bilgilerini de adapter'a gönder
-            vehicleHistoryAdapter.updateAllVehicleLogsFromList(vehicleLogs)
-        } else {
-            showEmptyState()
-        }
     }
 
     private fun showVehicles() {
@@ -236,7 +213,6 @@ class RecentVehiclesFragment : Fragment() {
             val date = apiDateFormat.parse(adjustedDateString)
             if (date != null) displayDateFormat.format(date) else "Hatalı Tarih"
         } catch (e: Exception) {
-            Log.e("RecentVehiclesFragment", "Tarih parse hatası: $dateString", e)
             dateString // Hata olursa orijinal string'i döndür
         }
     }
@@ -253,7 +229,7 @@ class RecentVehiclesFragment : Fragment() {
 
             FileWriter(file).use { writer ->
                 // CSV başlıkları
-                writer.append("Plaka,Giriş Zamanı,Çıkış Zamanı,Toplam Süre (s),Park Süresi (s),Hareket Süresi (s),CO2 Emisyonu (g/km)\n")
+                writer.append("Plaka,Giriş Zamanı,Çıkış Zamanı,Toplam Süre (dk),Park Süresi (dk),Hareket Süresi (dk),CO2 Emisyonu\n")
 
                 // Araç verileri
                 vehicleLogs.forEach { vehicleLog ->
@@ -261,21 +237,23 @@ class RecentVehiclesFragment : Fragment() {
                         writer.append("\"${vehicleLog.plate}\",")
                         writer.append("\"${formatDate(vehicleLog.entryTime)}\",")
                         writer.append("\"${if (vehicleLog.exitTime != null) formatDate(vehicleLog.exitTime) else "Çıkış yapılmadı"}\",")
-                        writer.append("${vehicleLog.totalTimeSeconds ?: 0},")
-                        writer.append("${vehicleLog.totalParkedSeconds ?: 0},")
-                        writer.append("${vehicleLog.actualMovingSeconds ?: 0},")
-                        writer.append("${vehicleLog.carbonEmission ?: 0}\n")
+                        // Toplam süre (dakika cinsinden)
+                        val totalMinutes = (vehicleLog.totalTimeSeconds ?: 0) / 60
+                        writer.append("${totalMinutes},")
+                        // Park süresi (dakika cinsinden)
+                        val parkMinutes = (vehicleLog.totalParkedSeconds ?: 0) / 60
+                        writer.append("${parkMinutes},")
+                        // Hareket süresi (dakika cinsinden)
+                        val movingMinutes = (vehicleLog.actualMovingSeconds ?: 0) / 60
+                        writer.append("${movingMinutes},")
+                        writer.append("${formatEmissionValueForReport(vehicleLog.carbonEmission ?: 0f)}\n")
                     }
                 }
             }
-
-            // Dosyayı medya tarayıcısına bildir
             notifyMediaScanner(file)
-
             Toast.makeText(requireContext(), "CSV raporu Downloads klasörüne kaydedildi: $fileName", Toast.LENGTH_LONG).show()
 
         } catch (e: Exception) {
-            Log.e("RecentVehiclesFragment", "CSV oluşturma hatası: ${e.message}")
             Toast.makeText(requireContext(), "CSV oluşturma hatası: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -289,17 +267,13 @@ class RecentVehiclesFragment : Fragment() {
             // Downloads klasörüne kaydet
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val file = File(downloadsDir, fileName)
-
             // PDF oluşturma kodu
             createPDFReport(file)
-
             // Dosyayı medya tarayıcısına bildir
             notifyMediaScanner(file)
-
             Toast.makeText(requireContext(), "PDF raporu Downloads klasörüne kaydedildi: $fileName", Toast.LENGTH_LONG).show()
 
         } catch (e: Exception) {
-            Log.e("RecentVehiclesFragment", "PDF oluşturma hatası: ${e.message}")
             Toast.makeText(requireContext(), "PDF oluşturma hatası: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -330,11 +304,11 @@ class RecentVehiclesFragment : Fragment() {
 
             document.add(Paragraph("\n"))
 
-            // Tablo olustur
-            val table = Table(7)
+            // Tablo olustur - daha az sutun ve daha genis
+            val table = Table(7) // 7 sutuna dusurduk
             table.setWidth(UnitValue.createPercentValue(100f))
 
-            // Tablo basliklari
+            // Tablo basliklari - normal CO2 kullan
             val headers = arrayOf(
                 "Plaka", "Giris", "Cikis", "Toplam Sure",
                 "CO2 Emisyonu", "Park Sure", "Hareket Sure"
@@ -344,7 +318,7 @@ class RecentVehiclesFragment : Fragment() {
                 val cell = Cell().add(Paragraph(header).setFont(font).setBold())
                 cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
                 cell.setTextAlignment(TextAlignment.CENTER)
-                cell.setFontSize(8f)
+                cell.setFontSize(8f) // Font boyutunu kuculttuk
                 table.addHeaderCell(cell)
             }
 
@@ -365,7 +339,7 @@ class RecentVehiclesFragment : Fragment() {
                     addCell(table, "${totalMinutes}dk", 8f, font)
 
                     // CO2 Emisyonu
-                    addCell(table, "${vehicleLog.carbonEmission ?: 0} g/km", 8f, font)
+                    addCell(table, formatEmissionValueForReport(vehicleLog.carbonEmission ?: 0f), 8f, font)
 
                     // Park sure
                     val parkMinutes = (vehicleLog.totalParkedSeconds ?: 0) / 60
@@ -382,12 +356,12 @@ class RecentVehiclesFragment : Fragment() {
             // Ozet bilgiler
             document.add(Paragraph("\n"))
             val totalVehicles = vehicleLogs.size
-            val totalEmissions = vehicleLogs.sumOf { it.carbonEmission?.toDouble() ?: 0.0 }
+            val totalEmissions = vehicleLogs.sumOf { (it.carbonEmission ?: 0f).toDouble() }
 
             val summary = Paragraph("""
                 Ozet Bilgiler:
                 Toplam Arac Sayisi: $totalVehicles
-                Toplam CO2 Emisyonu: $totalEmissions g/km
+                Toplam CO2 Emisyonu: ${formatEmissionValueForReport(totalEmissions.toFloat())}
             """.trimIndent())
                 .setFont(font)
                 .setFontSize(14f)
@@ -406,7 +380,7 @@ class RecentVehiclesFragment : Fragment() {
     private fun addCell(table: Table, text: String, fontSize: Float, font: PdfFont) {
         val cell = Cell().add(Paragraph(text).setFont(font).setFontSize(fontSize))
         cell.setTextAlignment(TextAlignment.CENTER)
-        cell.setPadding(2f)
+        cell.setPadding(2f) // Padding'i azalttik
         table.addCell(cell)
     }
 
@@ -434,6 +408,46 @@ class RecentVehiclesFragment : Fragment() {
         }
 
         startActivity(Intent.createChooser(intent, "Raporu paylaş"))
+    }
+
+    // CO₂ değerini formatla - 1000'den büyükse kg cinsinden göster, küsürat sadece gerektiğinde
+    private fun formatEmissionValue(emission: Float): String {
+        return if (emission >= 1000) {
+            val kgValue = emission / 1000
+            if (kgValue == kgValue.toInt().toFloat()) {
+                // Tam sayı ise küsürat gösterme
+                "${kgValue.toInt()} kg CO₂"
+            } else {
+                // Küsürat varsa 2 basamak göster
+                "%.2f kg CO₂".format(kgValue)
+            }
+        } else {
+            if (emission == emission.toInt().toFloat()) {
+                // Tam sayı ise küsürat gösterme
+                "${emission.toInt()} g CO₂"
+            } else {
+                // Küsürat varsa 2 basamak göster
+                "%.2f g CO₂".format(emission)
+            }
+        }
+    }
+
+    // Raporlar için CO2 değerini formatla - normal CO2 kullan
+    private fun formatEmissionValueForReport(emission: Float): String {
+        return if (emission >= 1000) {
+            val kgValue = emission / 1000
+            if (kgValue == kgValue.toInt().toFloat()) {
+                "${kgValue.toInt()} kg CO2"
+            } else {
+                "%.2f kg CO2".format(kgValue)
+            }
+        } else {
+            if (emission == emission.toInt().toFloat()) {
+                "${emission.toInt()} g CO2"
+            } else {
+                "%.2f g CO2".format(emission)
+            }
+        }
     }
 
     override fun onDestroyView() {

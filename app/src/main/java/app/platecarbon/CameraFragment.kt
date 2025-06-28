@@ -96,12 +96,8 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // VehicleHistoryManager'ı başlat
-        VehicleHistoryManager.initialize(requireContext())
-
         cameraExecutor = Executors.newSingleThreadExecutor()
         outputDirectory = getOutputDirectory()
-
         // Kamera butonu
         binding.captureBtn.setOnClickListener {
             takePhoto()
@@ -216,7 +212,6 @@ class CameraFragment : Fragment() {
                                 karbon_emisyon = arac.karbon_emisyon,
                                 arac_yili = arac.arac_yili ?: 0
                             )
-                            VehicleHistoryManager.addVehicleToHistory(vehicleRequest)
 
                             val bundle = Bundle().apply {
                                 putString("plaka", arac.plaka ?: "")
