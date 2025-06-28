@@ -60,10 +60,10 @@ class VehicleHistoryAdapter(
                 binding.tvMovingTime.text = "${formatDuration(vehicleLog.actualMovingSeconds)}\nHareket"
 
             } else {
-                // Log bilgisi yoksa temel araç bilgilerini göster
+                // Log bilgisi yoksa "Araç faal halde" yazısını göster
                 binding.tvCarbonEmission.visibility = View.GONE
-                binding.tvEntryTime.text = "Marka: ${vehicle.marka}"
-                binding.tvExitTime.text = "Model: ${vehicle.model}"
+                binding.tvEntryTime.text = "Araç faal halde"
+                binding.tvExitTime.text = "Detay bilgisi bekleniyor"
                 binding.tvTotalTime.text = ""
                 binding.tvParkedTime.text = ""
                 binding.tvMovingTime.text = ""
@@ -123,13 +123,24 @@ class VehicleHistoryAdapter(
         notifyDataSetChanged()
     }
 
+    // Tüm araç log bilgilerini güncellemek için yeni metod - liste ile
+    fun updateAllVehicleLogsFromList(allLogs: List<VehicleLog>) {
+        vehicleLogs.clear()
+        allLogs.forEach { vehicleLog ->
+            if (vehicleLog.plate != null) {
+                vehicleLogs[vehicleLog.plate] = vehicleLog
+            }
+        }
+        notifyDataSetChanged()
+    }
+
     // Tek bir aracın log bilgisini güncellemek için metod
     fun updateVehicleWithLog(plaka: String, vehicleLog: VehicleLog) {
         vehicleLogs[plaka] = vehicleLog
         notifyDataSetChanged()
     }
 
-    // Tüm araç log bilgilerini güncellemek için yeni metod
+    // Tüm araç log bilgilerini güncellemek için yeni metod - map ile
     fun updateAllVehicleLogs(allLogs: Map<String, VehicleLog>) {
         vehicleLogs.clear()
         vehicleLogs.putAll(allLogs)

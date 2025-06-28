@@ -98,6 +98,7 @@ class VehicleAddFragment : Fragment() {
 
         // Tüm dropdown'ları başlat
         setupBrandSpinner()
+        setupModelSpinnerEmpty() // <-- eklendi: Model spinner'ı başta boş olsun
         setupFuelTypeSpinner()
         setupVehicleTypeSpinner()
         setupColorSpinner()
@@ -119,7 +120,7 @@ class VehicleAddFragment : Fragment() {
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {
                 // Hiçbir şey seçilmediğinde model dropdown'ını temizle
-                binding.modelSpinner.adapter = null
+                setupModelSpinnerEmpty() // <-- eklendi: Seçim yoksa model spinner'ı boşalt
             }
         }
 
@@ -288,6 +289,17 @@ class VehicleAddFragment : Fragment() {
         binding.markaSpinner.adapter = adapter
     }
 
+    private fun setupModelSpinnerEmpty() { // <-- eklendi
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            listOf<String>() // Boş liste
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        binding.modelSpinner.adapter = adapter
+    }
+
     private fun selectBrandInSpinner(brand: String) {
         val position = brands.indexOf(brand)
         if (position != -1) {
@@ -297,8 +309,7 @@ class VehicleAddFragment : Fragment() {
     }
 
     private fun updateModelSpinner(brand: String) {
-        val models = brandModels[brand] ?: return
-
+        val models = brandModels[brand] ?: listOf<String>()
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -306,7 +317,6 @@ class VehicleAddFragment : Fragment() {
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
-
         binding.modelSpinner.adapter = adapter
     }
 

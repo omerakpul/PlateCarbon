@@ -14,13 +14,11 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import app.platecarbon.VehicleHistoryItem
 import app.platecarbon.databinding.FragmentRecentVehiclesBinding
-import app.platecarbon.VehicleHistoryManager
 import app.platecarbon.adapter.VehicleHistoryAdapter
-import app.platecarbon.model.SingleVehicleResponse
 import app.platecarbon.model.AllVehicleLogsResponse
 import app.platecarbon.model.VehicleLog
+import app.platecarbon.model.VehicleRequest
 import app.platecarbon.network.ApiClient
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
@@ -47,7 +45,7 @@ class RecentVehiclesFragment : Fragment() {
     private var _binding: FragmentRecentVehiclesBinding? = null
     private val binding get() = _binding!!
     private lateinit var vehicleHistoryAdapter: VehicleHistoryAdapter
-    private val vehicleLogs = mutableMapOf<String, VehicleLog>()
+    private val vehicleLogs = mutableListOf<VehicleLog>()
 
     // Tarih formatları
     private val apiDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
@@ -57,7 +55,7 @@ class RecentVehiclesFragment : Fragment() {
     private val handler = Handler(Looper.getMainLooper())
     private val updateRunnable = object : Runnable {
         override fun run() {
-            updateAllVehicleLogs()
+            fetchAllVehicleLogs()
             handler.postDelayed(this, 30000) // 30 saniyede bir güncelle
         }
     }
@@ -73,16 +71,20 @@ class RecentVehiclesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        VehicleHistoryManager.initialize(requireContext())
         setupRecyclerView()
         setupButtons()
 
         // Fragment'a girerken otomatik olarak verileri yükle
-        loadVehicleHistory()
         fetchAllVehicleLogs()
 
         // Periyodik güncellemeyi başlat
         startPeriodicUpdate()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Fragment'a her girişte verileri yeniden yükle
+        fetchAllVehicleLogs()
     }
 
     private fun startPeriodicUpdate() {
@@ -91,10 +93,6 @@ class RecentVehiclesFragment : Fragment() {
 
     private fun stopPeriodicUpdate() {
         handler.removeCallbacks(updateRunnable)
-    }
-
-    private fun updateAllVehicleLogs() {
-        fetchAllVehicleLogs()
     }
 
     private fun setupRecyclerView() {
@@ -129,9 +127,6 @@ class RecentVehiclesFragment : Fragment() {
         // Progress bar'ı göster
         binding.progressBar.visibility = View.VISIBLE
 
-        // VehicleHistoryManager'dan verileri yeniden yükle
-        loadVehicleHistory()
-
         // API'den güncel log bilgilerini al
         fetchAllVehicleLogs()
 
@@ -139,29 +134,6 @@ class RecentVehiclesFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             binding.progressBar.visibility = View.GONE
         }, 2000)
-    }
-
-    private fun loadVehicleHistory() {
-        val history = VehicleHistoryManager.getVehicleHistory()
-
-        if (history.isNotEmpty()) {
-            showVehicles(history)
-        } else {
-            showEmptyState()
-        }
-    }
-
-    private fun showVehicles(history: List<VehicleHistoryItem>) {
-        binding.progressBar.visibility = View.GONE
-        binding.tvEmptyState.visibility = View.GONE
-        binding.rvVehicles.visibility = View.VISIBLE
-        vehicleHistoryAdapter.updateVehicles(history)
-    }
-
-    private fun showEmptyState() {
-        binding.progressBar.visibility = View.GONE
-        binding.rvVehicles.visibility = View.GONE
-        binding.tvEmptyState.visibility = View.VISIBLE
     }
 
     private fun fetchAllVehicleLogs() {
@@ -189,29 +161,70 @@ class RecentVehiclesFragment : Fragment() {
 
                             // Plate null ise geç
                             if (vehicleLog.plate != null) {
-                                vehicleLogs[vehicleLog.plate] = vehicleLog
+                                vehicleLogs.add(vehicleLog)
                             } else {
                                 Log.w("RecentVehiclesFragment", "Plate null, bu kayıt atlanıyor")
                             }
                         }
 
                         // Adapter'ı güncelle
-                        vehicleHistoryAdapter.updateAllVehicleLogs(vehicleLogs)
+                        updateAdapterWithVehicleLogs()
 
                         Log.d("RecentVehiclesFragment", "${vehicleLogs.size} araç log bilgisi güncellendi")
                     } else {
                         Log.d("RecentVehiclesFragment", "Araç log bilgisi bulunamadı")
+                        showEmptyState()
                     }
                 } else {
                     val errorMessage = response.errorBody()?.string() ?: "Bilinmeyen hata"
                     Log.e("RecentVehiclesFragment", "API hatası: ${response.code()} - $errorMessage")
+                    showEmptyState()
                 }
             }
 
             override fun onFailure(call: Call<AllVehicleLogsResponse>, t: Throwable) {
                 Log.e("RecentVehiclesFragment", "Bağlantı hatası: ${t.message}")
+                showEmptyState()
             }
         })
+    }
+
+    private fun updateAdapterWithVehicleLogs() {
+        if (vehicleLogs.isNotEmpty()) {
+            showVehicles()
+            // VehicleLog'ları VehicleHistoryItem'lara dönüştür
+            val historyItems = vehicleLogs.map { vehicleLog ->
+                val vehicle = VehicleRequest(
+                    plaka = vehicleLog.plate ?: "",
+                    marka = "Bilinmiyor",
+                    model = "Bilinmiyor",
+                    renk = "Bilinmiyor",
+                    yakit_turu = "Bilinmiyor",
+                    arac_tipi = "Bilinmiyor",
+                    karbon_emisyon = vehicleLog.carbonEmission,
+                    arac_yili = 0
+                )
+                app.platecarbon.VehicleHistoryItem(vehicle)
+            }
+            vehicleHistoryAdapter.updateVehicles(historyItems)
+
+            // Log bilgilerini de adapter'a gönder
+            vehicleHistoryAdapter.updateAllVehicleLogsFromList(vehicleLogs)
+        } else {
+            showEmptyState()
+        }
+    }
+
+    private fun showVehicles() {
+        binding.progressBar.visibility = View.GONE
+        binding.tvEmptyState.visibility = View.GONE
+        binding.rvVehicles.visibility = View.VISIBLE
+    }
+
+    private fun showEmptyState() {
+        binding.progressBar.visibility = View.GONE
+        binding.rvVehicles.visibility = View.GONE
+        binding.tvEmptyState.visibility = View.VISIBLE
     }
 
     // Tarih formatını düzenle
@@ -240,28 +253,18 @@ class RecentVehiclesFragment : Fragment() {
 
             FileWriter(file).use { writer ->
                 // CSV başlıkları
-                writer.append("Plaka,Giriş Zamanı,Çıkış Zamanı,Toplam Süre (s),Park Süresi (s),Hareket Süresi (s),CO2 Emisyonu (g/km),Marka,Model,Renk,Yakıt Türü,Araç Yılı\n")
+                writer.append("Plaka,Giriş Zamanı,Çıkış Zamanı,Toplam Süre (s),Park Süresi (s),Hareket Süresi (s),CO2 Emisyonu (g/km)\n")
 
                 // Araç verileri
-                val history = VehicleHistoryManager.getVehicleHistory()
-                history.forEach { historyItem ->
-                    val plaka = historyItem.vehicle.plaka
-                    val vehicleLog = vehicleLogs[plaka]
-
-                    if (vehicleLog != null) {
-                        // Plaka bilgisini historyItem'dan al, vehicleLog'dan değil
-                        writer.append("\"${plaka}\",")
+                vehicleLogs.forEach { vehicleLog ->
+                    if (vehicleLog.plate != null) {
+                        writer.append("\"${vehicleLog.plate}\",")
                         writer.append("\"${formatDate(vehicleLog.entryTime)}\",")
                         writer.append("\"${if (vehicleLog.exitTime != null) formatDate(vehicleLog.exitTime) else "Çıkış yapılmadı"}\",")
                         writer.append("${vehicleLog.totalTimeSeconds ?: 0},")
                         writer.append("${vehicleLog.totalParkedSeconds ?: 0},")
                         writer.append("${vehicleLog.actualMovingSeconds ?: 0},")
-                        writer.append("${vehicleLog.carbonEmission ?: 0},")
-                        writer.append("\"${historyItem.vehicle.marka ?: ""}\",")
-                        writer.append("\"${historyItem.vehicle.model ?: ""}\",")
-                        writer.append("\"${historyItem.vehicle.renk ?: ""}\",")
-                        writer.append("\"${historyItem.vehicle.yakit_turu ?: ""}\",")
-                        writer.append("${historyItem.vehicle.arac_yili ?: 0}\n")
+                        writer.append("${vehicleLog.carbonEmission ?: 0}\n")
                     }
                 }
             }
@@ -301,8 +304,6 @@ class RecentVehiclesFragment : Fragment() {
         }
     }
 
-    // ... existing code ...
-
     private fun createPDFReport(file: File) {
         try {
             val writer = PdfWriter(file)
@@ -329,33 +330,29 @@ class RecentVehiclesFragment : Fragment() {
 
             document.add(Paragraph("\n"))
 
-            // Tablo olustur - daha az sutun ve daha genis
-            val table = Table(8) // 8 sutuna dusurduk
+            // Tablo olustur
+            val table = Table(7)
             table.setWidth(UnitValue.createPercentValue(100f))
 
-            // Tablo basliklari - Turkce karakterleri kaldirdik
+            // Tablo basliklari
             val headers = arrayOf(
                 "Plaka", "Giris", "Cikis", "Toplam Sure",
-                "CO2 Emisyonu", "Marka", "Model", "Yil"
+                "CO2 Emisyonu", "Park Sure", "Hareket Sure"
             )
 
             headers.forEach { header ->
                 val cell = Cell().add(Paragraph(header).setFont(font).setBold())
                 cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
                 cell.setTextAlignment(TextAlignment.CENTER)
-                cell.setFontSize(8f) // Font boyutunu kuculttuk
+                cell.setFontSize(8f)
                 table.addHeaderCell(cell)
             }
 
             // Arac verileri
-            val history = VehicleHistoryManager.getVehicleHistory()
-            history.forEach { historyItem ->
-                val plaka = historyItem.vehicle.plaka
-                val vehicleLog = vehicleLogs[plaka]
-
-                if (vehicleLog != null) {
+            vehicleLogs.forEach { vehicleLog ->
+                if (vehicleLog.plate != null) {
                     // Plaka
-                    addCell(table, plaka, 8f, font)
+                    addCell(table, vehicleLog.plate, 8f, font)
 
                     // Giris zamani
                     addCell(table, formatDate(vehicleLog.entryTime), 8f, font)
@@ -370,14 +367,13 @@ class RecentVehiclesFragment : Fragment() {
                     // CO2 Emisyonu
                     addCell(table, "${vehicleLog.carbonEmission ?: 0} g/km", 8f, font)
 
-                    // Marka
-                    addCell(table, historyItem.vehicle.marka ?: "", 8f, font)
+                    // Park sure
+                    val parkMinutes = (vehicleLog.totalParkedSeconds ?: 0) / 60
+                    addCell(table, "${parkMinutes}dk", 8f, font)
 
-                    // Model
-                    addCell(table, historyItem.vehicle.model ?: "", 8f, font)
-
-                    // Yil
-                    addCell(table, (historyItem.vehicle.arac_yili ?: 0).toString(), 8f, font)
+                    // Hareket sure
+                    val movingMinutes = (vehicleLog.actualMovingSeconds ?: 0) / 60
+                    addCell(table, "${movingMinutes}dk", 8f, font)
                 }
             }
 
@@ -385,11 +381,8 @@ class RecentVehiclesFragment : Fragment() {
 
             // Ozet bilgiler
             document.add(Paragraph("\n"))
-            val totalVehicles = history.size
-            val totalEmissions = history.sumOf { historyItem ->
-                val plaka = historyItem.vehicle.plaka
-                vehicleLogs[plaka]?.carbonEmission?.toDouble() ?: 0.0
-            }
+            val totalVehicles = vehicleLogs.size
+            val totalEmissions = vehicleLogs.sumOf { it.carbonEmission?.toDouble() ?: 0.0 }
 
             val summary = Paragraph("""
                 Ozet Bilgiler:
@@ -413,11 +406,9 @@ class RecentVehiclesFragment : Fragment() {
     private fun addCell(table: Table, text: String, fontSize: Float, font: PdfFont) {
         val cell = Cell().add(Paragraph(text).setFont(font).setFontSize(fontSize))
         cell.setTextAlignment(TextAlignment.CENTER)
-        cell.setPadding(2f) // Padding'i azalttik
+        cell.setPadding(2f)
         table.addCell(cell)
     }
-
-// ... existing code ...
 
     // Dosyayı medya tarayıcısına bildir (Downloads klasöründe görünmesi için)
     private fun notifyMediaScanner(file: File) {
