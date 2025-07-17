@@ -59,13 +59,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
-    // Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    // Retrofit -> GSON Converter (JSON veriyi nesneye çeviriyor)
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    // OkHttp3 (istekleri daha rahat izlemek için, istersen şimdilik boş geçebilirsin)
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.1")
-    // CameraX
     var camerax_version = "1.3.0"
     implementation ("androidx.camera:camera-core:$camerax_version")
     implementation ("androidx.camera:camera-camera2:$camerax_version")
